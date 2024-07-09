@@ -12,4 +12,8 @@ By facilitating and giving users a space to exchange or donate their products, w
 
 
 ### Contributors
-https://github.com/xiaoxinny/EcoSwap/graphs/contributors
+<a href="https://github.com/xiaoxinny/EcoSwap/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=xiaoxinny/EcoSwap" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
