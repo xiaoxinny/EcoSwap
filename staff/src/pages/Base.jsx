@@ -1,35 +1,100 @@
 import { React, useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import "../styles/Base.css";
-import { Navbar } from "react-bootstrap";
+import { Container, Navbar } from "react-bootstrap";
 
 function Layout() {
   const [matches, setMatches] = useState(
     window.matchMedia("(min-width: 768px)").matches
-  )
+  );
 
   useEffect(() => {
     window
-    .matchMedia("(min-width: 768px)")
-    .addEventListener('change', e => setMatches( e.matches ));
+      .matchMedia("(min-width: 768px)")
+      .addEventListener("change", (e) => setMatches(e.matches));
   }, []);
 
   return (
     <>
-      <div>
+      {/* {!matches && (
+        <div>
+          <Navbar
+            className="navbar-light navbar-expand-sm bg-white shadow p-3 mb-5 bg-body-tertiary rounded fixed-top"
+            style={{ height: "56px" }}
+          >
+            <Container fluid>
+              <Link className="navbar-brand text-dark fs-2" to="/">
+                EcoSwap
+              </Link>
+              <button
+                className="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+              >
+                <span className="navbar-toggler-icon"></span>
+              </button>
+              <Container
+                className="collapse navbar-collapse"
+                id="navbarSupportedContent"
+              >
+                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li className="nav-item">
+                    <Link
+                      className="nav-link active"
+                      aria-current="page"
+                      to="/"
+                    >
+                      Home
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/FAQ">
+                      FAQs
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/">
+                      Violations
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/">
+                      Account Management
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/">
+                      Listings Management
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/">
+                      Event Management
+                    </Link>
+                  </li>
+                </ul>
+              </Container>
+            </Container>
+          </Navbar>
+        </div>
+      )} */}
+      ;
       {matches && (
-        {/* Top Bar */}
-        <Navbar
-          className=" navbar-light bg-white shadow p-3 mb-5 bg-body-tertiary rounded fixed-top"
-          style={{ height: "56px" }}
-        >
-          <Link className="navbar-brand text-dark fs-2" to="/">
-            EcoSwap
-          </Link>
-        </Navbar>
-
-        <div className="container-fluid">
-          
+        <div>
+          {/* Top Bar */}
+          <Navbar
+            className="navbar-light bg-white shadow p-3 mb-5 bg-body-tertiary rounded fixed-top"
+            style={{ height: "80px" }}
+          >
+            <Link className="navbar-brand text-dark fs-2" to="/">
+              EcoSwap
+            </Link>
+          </Navbar>
+          <div className="container-fluid">
             <div className="row">
               {/* Side Navbar */}
               <div
@@ -67,9 +132,9 @@ function Layout() {
                 <Outlet />
               </div>
             </div>
+          </div>
         </div>
-        )}
-      </div>
+      )}
     </>
   );
 }
