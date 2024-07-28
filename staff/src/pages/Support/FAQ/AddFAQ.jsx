@@ -1,10 +1,10 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import http from "../http.js";
+import http from "../../../http.js";
 import { Link, useNavigate } from "react-router-dom";
 
-const AddFAQs = () => {
+const AddFAQ = () => {
   const navigate = useNavigate();
 
   const initialValues = {
@@ -87,4 +87,4 @@ const AddFAQs = () => {
   );
 };
 
-export default AddFAQs;
+export default AddFAQ;

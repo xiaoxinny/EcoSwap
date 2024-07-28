@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import http from "../http.js"; 
+import http from "../../../http.js";
 import { Link } from "react-router-dom";
 
 function FAQ() {

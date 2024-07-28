@@ -6,26 +6,73 @@ const http = require("http");
 
 require("dotenv").config();
 
-app.use(express.json())
+app.use(express.json());
 
-
+// Allow CORS from different endpoints
 const corsOptions = {
-  origin: 'http://localhost:4000',
-  optionsSuccessStatus: 200 
+  origin: "http://localhost:4000",
+  optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-
 
 // Routes
 const faqRoutes = require("./routes/faq.controller.js");
 app.use("/faqs", faqRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+const chatRoutes = require("./routes/chats.controller.js");
+app.use("/chats", chatRoutes);
+
+const emailRoutes = require("./routes/email.controller.js");
+app.use("/email", emailRoutes);
+
+const violationRoutes = require("./routes/violations.controller.js");
+app.use("/violations", violationRoutes);
+
+const appealRoutes = require("./routes/appeals.controller.js");
+app.use("/appeals", appealRoutes);
+
+// Base route
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
+// Defining the HTTP server to handle Socket IO
 const server = http.createServer(app);
 
+// Socket IO methods
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:4000",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  });
+
+  // Handle user messages
+  socket.on("userMessage", (msg) => {
+    console.log("User message: " + msg);
+    io.emit("userMessage", msg);
+  });
+
+  // Handle staff messages
+  socket.on("staffMessage", (msg) => {
+    console.log("Staff message: " + msg);
+    io.emit("staffMessage", msg);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+  });
+});
+
+// Sychronizing with database and launching the server
 db.sequelize
   .sync({ alter: true })
   .then(() => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import http from "../http.js";
+import http from "../../../http.js";
 import { Link, useParams, useNavigate } from "react-router-dom";
 
 const EditFAQ = () => {

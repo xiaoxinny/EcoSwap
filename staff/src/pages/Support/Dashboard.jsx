@@ -3,7 +3,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
-function Home(){
+function Dashboard(){
   return (
     <>
       <Navbar expand="lg" className="bg-body-tertiary">
@@ -33,4 +33,4 @@ function Home(){
   )
 }
   
-export default Home;
+export default Dashboard;

@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
-import "../styles/Base.css";
+import "../styles/base.css";
 import { Container, Navbar } from "react-bootstrap";
 
 function Layout() {
@@ -16,15 +16,17 @@ function Layout() {
 
   return (
     <>
-      {/* {!matches && (
+      {!matches && (
         <div>
           <Navbar
+           
             className="navbar-light navbar-expand-sm bg-white shadow p-3 mb-5 bg-body-tertiary rounded fixed-top"
             style={{ height: "56px" }}
           >
             <Container fluid>
               <Link className="navbar-brand text-dark fs-2" to="/">
-                EcoSwap
+                <img src="../assets/staff\src\assets\IT2155 - EcoSwap Logo.png - EcoSwap Logo.png" alt=""></img>
+                <p>EcoSwap</p>
               </Link>
               <button
                 className="navbar-toggler"
@@ -81,14 +83,13 @@ function Layout() {
             </Container>
           </Navbar>
         </div>
-      )} */}
-      ;
+      )}
       {matches && (
         <div>
           {/* Top Bar */}
           <Navbar
             className="navbar-light bg-white shadow p-3 mb-5 bg-body-tertiary rounded fixed-top"
-            style={{ height: "80px" }}
+            style={{ height: "56px" }}
           >
             <Link className="navbar-brand text-dark fs-2" to="/">
               EcoSwap
