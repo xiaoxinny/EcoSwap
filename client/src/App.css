@@ -1,0 +1,118 @@
+
+.login-container, .register-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.login-container h2, .register-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-container form div, .register-container form div {
+  margin-bottom: 10px;
+}
+
+.login-container form div label, .register-container form div label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.login-container form div input, .register-container form div input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-container form button, .register-container form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-container form button:hover, .register-container form button:hover {
+  background-color: #0056b3;
+}
+
+.login-container p, .register-container p {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.login-container p a, .register-container p a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-container p a:hover, .register-container p a:hover {
+  text-decoration: underline;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-container .form-group {
+  margin-bottom: 15px;
+}
+
+.auth-container .form-control {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.auth-container .btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.auth-container .btn:hover {
+  background-color: #0056b3;
+}
+
+.auth-container p {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.auth-container .error {
+  color: red;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
