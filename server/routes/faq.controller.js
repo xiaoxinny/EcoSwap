@@ -8,8 +8,8 @@ const router = express.Router();
 router.post("/", async (req, res) => { 
     let data = req.body; // Validate request body 
     let validationSchema = yup.object({ 
-        question: yup.string().trim().min(3).max(500).required(), 
-        answer: yup.string().trim().min(3).max(500).required() 
+        question: yup.string().trim().min(3).max(255).required(), 
+        answer: yup.string().trim().min(3).max(500).required(),
     }); 
 
     try { 
@@ -51,10 +51,10 @@ router.get("/:id", async (req, res) => {
 // Update FAQ
 router.put("/:id", async (req, res) => {
     let data = req.body;
-    let validationSchema = yup.object({
-        question: yup.string().trim().min(3).max(500).required(),
-        answer: yup.string().trim().min(3).max(500).required()
-    });
+    let validationSchema = yup.object({ 
+        question: yup.string().trim().min(3).max(255).required(), 
+        answer: yup.string().trim().min(3).max(500).required(),
+    }); 
 
     try {
         data = await validationSchema.validate(

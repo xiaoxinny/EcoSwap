@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 import http from "../../../http.js";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { Container, TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography } from "@mui/material";
 
 const EditFAQ = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [faq, setFaq] = useState(null); 
+  const [faq, setFaq] = useState(null);
 
   useEffect(() => {
     const fetchFAQ = async () => {
@@ -20,89 +21,137 @@ const EditFAQ = () => {
     };
 
     fetchFAQ();
-  }, [id]); 
-
-  const initialValues = {
-    question: faq ? faq.question : "",
-    answer: faq ? faq.answer : ""
-  };
+  }, [id]);
 
   const validationSchema = Yup.object().shape({
     question: Yup.string().trim().required("Question is required"),
-    answer: Yup.string().trim().required("Answer is required")
+    answer: Yup.string().trim().required("Answer is required"),
+    category: Yup.string().trim().required("Category is required"),
   });
 
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     try {
       await http.put(`/faqs/${id}`, values);
       console.log("FAQ updated:", values);
-      navigate("/FAQ"); 
+      navigate("/FAQ");
     } catch (error) {
       console.error("Error updating FAQ:", error);
-      setFieldError("submit", "Failed to update FAQ. Please try again."); 
+      setFieldError("submit", "Failed to update FAQ. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const formik = useFormik({
+    initialValues: {
+      question: faq ? faq.question : "",
+      answer: faq ? faq.answer : "",
+      category: faq ? faq.category : "",
+    },
+    enableReinitialize: true,
+    validationSchema,
+    onSubmit: handleSubmit,
+  });
+
   if (!faq) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="container">
+    <Container>
       <h1 className="pt-5 pb-3">Edit FAQ</h1>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form>
-            <div className="mb-3">
-              <label htmlFor="question" className="form-label">
-                Question
-              </label>
-              <Field
-                type="text"
-                className="form-control"
-                id="question"
-                name="question"
-              />
-              <ErrorMessage
-                name="question"
-                component="div"
-                className="text-danger"
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="answer" className="form-label">
-                Answer
-              </label>
-              <Field
-                as="textarea"
-                className="form-control"
-                id="answer"
-                name="answer"
-                rows="3"
-              />
-              <ErrorMessage
-                name="answer"
-                component="div"
-                className="text-danger"
-              />
-            </div>
-            <ErrorMessage name="submit" component="div" className="alert alert-danger" />
-            <button type="submit" className="btn btn-primary me-2" disabled={isSubmitting}>
-              {isSubmitting ? "Updating..." : "Update FAQ"}
-            </button>
-            <Link to="/faqs" className="btn btn-secondary">
-              Cancel
-            </Link>
-          </Form>
-        )}
-      </Formik>
-    </div>
+      <form onSubmit={formik.handleSubmit}>
+        <FormControl fullWidth>
+          <TextField
+            sx={{ mb: 3 }}
+            id="question"
+            name="question"
+            label="Question"
+            value={formik.values.question}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.question && Boolean(formik.errors.question)}
+            helperText={formik.touched.question && formik.errors.question}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <TextField
+            sx={{ mb: 3 }}
+            multiline
+            rows={4}
+            id="answer"
+            name="answer"
+            label="Answer"
+            value={formik.values.answer}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.answer && Boolean(formik.errors.answer)}
+            helperText={formik.touched.answer && formik.errors.answer}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel id="category-label">Category</InputLabel>
+          <Select
+            sx={{ mb: 3 }}
+            id="category"
+            name="category"
+            label="Category"
+            labelId="category-label"
+            value={formik.values.category}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.category && Boolean(formik.errors.category)}
+          >
+            <MenuItem value={"General"}>General</MenuItem>
+            <MenuItem value={"Listings"}>Listings</MenuItem>
+            <MenuItem value={"Violations and Appeal"}>Violations and Appeal</MenuItem>
+            <MenuItem value={"Events"}>Events</MenuItem>
+            <MenuItem value={"Support"}>Support</MenuItem>
+          </Select>
+          {formik.touched.category && formik.errors.category && (
+            <Typography color="error" sx={{ mb: 3 }}>
+              {formik.errors.category}
+            </Typography>
+          )}
+        </FormControl>
+
+        {formik.errors.submit ? (
+          <Typography color="error" sx={{ mb: 3 }}>
+            {formik.errors.submit}
+          </Typography>
+        ) : null}
+
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={formik.isSubmitting}
+          sx={{
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "darkgrey",
+            },
+            mr: 2,
+          }}
+        >
+          {formik.isSubmitting ? "Updating..." : "Update FAQ"}
+        </Button>
+        <Button
+          component={Link}
+          to="/faqs"
+          variant="contained"
+          sx={{
+            backgroundColor: "black",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "darkgrey",
+            },
+          }}
+        >
+          Cancel
+        </Button>
+      </form>
+    </Container>
   );
 };
 

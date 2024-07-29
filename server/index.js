@@ -15,27 +15,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Routes
-const faqRoutes = require("./routes/faq.controller.js");
-app.use("/faqs", faqRoutes);
-
-const chatRoutes = require("./routes/chats.controller.js");
-app.use("/chats", chatRoutes);
-
-const emailRoutes = require("./routes/email.controller.js");
-app.use("/email", emailRoutes);
-
-const violationRoutes = require("./routes/violations.controller.js");
-app.use("/violations", violationRoutes);
-
-const appealRoutes = require("./routes/appeals.controller.js");
-app.use("/appeals", appealRoutes);
-
-// Base route
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 // Defining the HTTP server to handle Socket IO
 const server = http.createServer(app);
 
@@ -71,6 +50,28 @@ io.on("connection", (socket) => {
     console.log("User Disconnected", socket.id);
   });
 });
+
+// Base route
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+// Routes
+const faqRoutes = require("./routes/faq.controller.js");
+app.use("/faqs", faqRoutes);
+
+// const chatRoutes = require("./routes/chats.controller.js");
+// app.use("/chats", chatRoutes);
+
+// const emailRoutes = require("./routes/email.controller.js");
+// app.use("/email", emailRoutes);
+
+// const violationRoutes = require("./routes/violations.controller.js");
+// app.use("/violations", violationRoutes);
+
+// const appealRoutes = require("./routes/appeals.controller.js");
+// app.use("/appeals", appealRoutes);
+
 
 // Sychronizing with database and launching the server
 db.sequelize

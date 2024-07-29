@@ -9,8 +9,8 @@ const UserRoutes = () => {
     return (
         <Routes>
             <Route path="/" element={<Base />}>
-                <Route index path="/" element={<Dashboard />} />
-                <Route path="/FAQ" element={<FAQ />} />
+                <Route index path="/dashboard" element={<Dashboard />} />
+                <Route path="/faq" element={<FAQ />} />
                 <Route path="/add-faq" element={<AddFAQ />} />
                 <Route path="/edit-faq/:id" element={<EditFAQ />} />
             </Route>
