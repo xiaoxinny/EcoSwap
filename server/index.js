@@ -3,6 +3,8 @@ const app = express();
 const cors = require("cors");
 const db = require("./models");
 const http = require("http");
+const fs = require('fs');
+const path = require('path');
 
 require("dotenv").config();
 
@@ -10,7 +12,7 @@ app.use(express.json());
 
 // Allow CORS from different endpoints
 const corsOptions = {
-  origin: "http://localhost:4000",
+  origin: ["http://localhost:4000", "http://localhost:3000"],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
@@ -21,33 +23,128 @@ const server = http.createServer(app);
 // Socket IO methods
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:4000",
+    origin: ["http://localhost:4000", "http://localhost:3000"],
     methods: ["GET", "POST"],
   },
 });
 
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
+const chatHistory = {};
+const staffRooms = {};
 
-  socket.on("join_room", (data) => {
-    socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+io.on('connection', (socket) => {
+  let currentRoom = null;
+  let currentUsername = null;
+  let isStaff = false;
+
+  socket.on('userJoin', ({ username }) => {
+    if (!username) return;
+
+    currentRoom = `room_${username}`;
+    currentUsername = username;
+
+    if (!chatHistory[currentRoom]) {
+      chatHistory[currentRoom] = [];
+    }
+
+    const joinMessage = { sender: 'System', text: `${username} joined the chat.`, timestamp: new Date() };
+    chatHistory[currentRoom].push(joinMessage);
+
+    socket.join(currentRoom);
+    io.to(currentRoom).emit('chatHistory', chatHistory[currentRoom]);
+    io.to(currentRoom).emit('userJoinedRoom', joinMessage);
+
+    if (!staffRooms[currentRoom]) {
+      staffRooms[currentRoom] = [];
+    }
+    staffRooms[currentRoom].push(socket.id);
+    io.emit('roomsList', Object.keys(staffRooms));
   });
 
-  // Handle user messages
-  socket.on("userMessage", (msg) => {
-    console.log("User message: " + msg);
-    io.emit("userMessage", msg);
+  socket.on('staffLogin', ({ username }) => {
+    currentUsername = username;
+    isStaff = true;
+    socket.emit('roomsList', Object.keys(staffRooms));
   });
 
-  // Handle staff messages
-  socket.on("staffMessage", (msg) => {
-    console.log("Staff message: " + msg);
-    io.emit("staffMessage", msg);
+  socket.on('staffJoinedRoom', ({ room, username }) => {
+    currentRoom = room;
+    currentUsername = username;
+
+    const joinMessage = { sender: 'System', text: `Staff member ${username} joined the chat.`, timestamp: new Date() };
+    if (!chatHistory[room]) {
+      chatHistory[room] = [];
+    }
+    chatHistory[room].push(joinMessage);
+
+    socket.join(room);
+    io.to(room).emit('chatMessage', joinMessage);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User Disconnected", socket.id);
+  socket.on('chatMessage', ({ room, msg, username }) => {
+    if (!room || !msg) return;
+    const message = { sender: username, text: msg, timestamp: new Date(), room: room };
+
+    if (!chatHistory[room]) {
+      chatHistory[room] = [];
+    }
+    console.log('Message:', message);
+    chatHistory[room].push(message);
+    io.to(room).emit('chatMessage', message); // Broadcast to room
+  });
+
+  // socket.on('userMessage', ({ msg }) => {
+  //   if (!msg || !currentRoom) return;
+  //   const message = { sender: currentUsername, text: msg, timestamp: new Date(), room: currentRoom };
+
+  //   if (!chatHistory[currentRoom]) {
+  //     chatHistory[currentRoom] = [];
+  //   }
+  //   console.log('userMessage:', message);
+  //   chatHistory[currentRoom].push(message);
+  //   io.to(currentRoom).emit('chatMessage', message); // Broadcast to room
+  // });
+
+  socket.on('disconnect', () => {
+    if (currentRoom && currentUsername) {
+      const leaveMessage = { sender: 'System', text: `${currentUsername} left the chat.`, timestamp: new Date() };
+
+      if (chatHistory[currentRoom]) {
+        chatHistory[currentRoom].push(leaveMessage);
+        io.to(currentRoom).emit('chatMessage', leaveMessage);
+      }
+
+      if (staffRooms[currentRoom]) {
+        staffRooms[currentRoom] = staffRooms[currentRoom].filter(id => id !== socket.id);
+        if (staffRooms[currentRoom].length === 0) {
+          delete staffRooms[currentRoom];
+        }
+      }
+
+      io.emit('roomsList', Object.keys(staffRooms));
+    }
+  });
+});
+
+app.get('/downloadTranscript/:username', (req, res) => {
+  const username = req.params.username;
+  const room = `room_${username}`;
+  if (!chatHistory[room]) {
+    return res.status(404).send('Room not found');
+  }
+
+  const transcript = chatHistory[room].map(msg => `${new Date(msg.timestamp).toLocaleString()} - ${msg.sender}: ${msg.text}`).join('\n');
+  const filePath = path.join(__dirname, `${username}-transcript.txt`);
+
+  fs.writeFile(filePath, transcript, (err) => {
+    if (err) {
+      return res.status(500).send('Failed to generate transcript');
+    }
+    res.download(filePath, (err) => {
+      if (err) {
+        return res.status(500).send('Failed to download transcript');
+      }
+      fs.unlink(filePath, () => {});
+    });
   });
 });
 
@@ -59,19 +156,6 @@ app.get("/", (req, res) => {
 // Routes
 const faqRoutes = require("./routes/faq.controller.js");
 app.use("/faqs", faqRoutes);
-
-// const chatRoutes = require("./routes/chats.controller.js");
-// app.use("/chats", chatRoutes);
-
-// const emailRoutes = require("./routes/email.controller.js");
-// app.use("/email", emailRoutes);
-
-// const violationRoutes = require("./routes/violations.controller.js");
-// app.use("/violations", violationRoutes);
-
-// const appealRoutes = require("./routes/appeals.controller.js");
-// app.use("/appeals", appealRoutes);
-
 
 // Sychronizing with database and launching the server
 db.sequelize

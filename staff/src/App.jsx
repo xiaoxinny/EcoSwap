@@ -8,7 +8,6 @@ function App() {
     <Router>
       <CssBaseline />
       <Routes />
-      <script src="https://cdn.jsdelivr.net/npm/react/umd/react.production.min.js" crossOrigin></script>
     </Router>
     
   );
