@@ -1,10 +1,9 @@
-
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import "../App.css"; 
 
-function Register() {
+const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,9 +14,11 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/register', { username, email, password });
+      const response = await axios.post('http://localhost:5000/api/register', { username, email, password });
       if (response.data.success) {
         navigate('/login');
+      } else {
+        setError("Registration failed. Please try again.");
       }
     } catch (err) {
       setError('Registration failed. Please try again.');
@@ -28,7 +29,7 @@ function Register() {
   return (
     <div className="register-container">
       <h2>Register</h2>
-      {error && <p className="text-danger">{error}</p>}
+      {error && <p className="error">{error}</p>}
       <form onSubmit={handleRegister}>
         <div className="form-group">
           <label htmlFor="username">Username</label>
@@ -70,6 +71,6 @@ function Register() {
       </p>
     </div>
   );
-}
+};
 
 export default Register;

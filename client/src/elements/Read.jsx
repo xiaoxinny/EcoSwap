@@ -7,7 +7,7 @@ function Read() {
   const { id } = useParams();
 
   useEffect(() => {
-    axios.get(`/get_event/${id}`)
+    axios.get(`/api/events/get_event/${id}`)
       .then((res) => {
         setData(res.data);
       })
@@ -22,7 +22,7 @@ function Read() {
         <ul className="list-group" key={event.id}>
           <li className="list-group-item"><b>ID:</b> {event.id}</li>
           <li className="list-group-item"><b>Title:</b> {event.title}</li>
-          <li className="list-group-item"><b>Picture URL:</b> <a href={event.picture} target="_blank" rel="noopener noreferrer">View</a></li>
+          <li className="list-group-item"><b>Picture:</b> <img src={event.picture}></img> </li>
           <li className="list-group-item"><b>Date:</b> {event.date}</li>
           <li className="list-group-item"><b>Speaker:</b> {event.speaker}</li>
           <li className="list-group-item"><b>Sponsors:</b> {event.sponsors}</li>

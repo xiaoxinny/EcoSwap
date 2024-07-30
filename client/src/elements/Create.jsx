@@ -22,7 +22,7 @@ function Create() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    axios.post('/add', values)
+    axios.post('/api/events/add', values)
       .then(() => navigate('/'))
       .catch((err) => console.log(err));
   }

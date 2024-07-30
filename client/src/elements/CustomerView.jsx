@@ -8,7 +8,7 @@ function CustomerView() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('/events')
+    axios.get('/api/events/events')
       .then((res) => {
         setEvents(res.data);
       })
@@ -22,7 +22,7 @@ function CustomerView() {
 
   return (
     <div className="customer-view-container">
-      <button className="btn btn-danger sign-out-button" onClick={handleSignOut}>Sign Out</button> {/* signout here is a placeholder, replace with universal navbar */}
+      <button className="btn btn-danger sign-out-button" onClick={handleSignOut}>Sign Out</button> {/* Placeholder, Replace with Navigation Bar */}
       <div>
         <h1>  </h1>
       </div>

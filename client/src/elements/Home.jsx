@@ -11,7 +11,7 @@ function Home() {
   useEffect(() => {
     if (deleted) {
       setDeleted(false);
-      axios.get('/events')
+      axios.get('/api/events/events')
         .then((res) => {
           setData(res.data);
         })
@@ -20,7 +20,7 @@ function Home() {
   }, [deleted]);
 
   function handleDelete(id) {
-    axios.delete(`/delete/${id}`)
+    axios.delete(`/api/events/delete/${id}`)
       .then((res) => {
         setDeleted(true);
       })
@@ -78,8 +78,8 @@ function Home() {
                   <td>{event.venue}</td>
                   <td>
                     <div className='action-buttons'>
-                      <Link className='btn btn-outline-primary btn-sm me-2' to={`/read/${event.id}`}>Read</Link>
-                      <Link className='btn btn-outline-warning btn-sm me-2' to={`/edit/${event.id}`}>Edit</Link>
+                      <Link className='btn btn-outline-primary btn-sm me-2' to={`read/${event.id}`}>Read</Link>
+                      <Link className='btn btn-outline-warning btn-sm me-2' to={`edit/${event.id}`}>Edit</Link>
                       <button onClick={() => handleDelete(event.id)} className='btn btn-outline-danger btn-sm'>Delete</button>
                     </div>
                   </td>

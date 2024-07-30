@@ -10,7 +10,7 @@ function CustomerViewDetail() {
   const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
-    axios.get(`/get_event/${id}`)
+    axios.get(`/api/events/get_event/${id}`)
       .then((res) => {
         setEvent(res.data[0]); 
       })

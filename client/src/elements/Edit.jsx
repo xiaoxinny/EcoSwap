@@ -4,15 +4,22 @@ import axios from "axios";
 
 function Edit() {
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`/get_event/${id}`)
+    axios.get(`http://localhost:5000/api/events/get_event/${id}`)
       .then((res) => {
         setData(res.data[0] || {});
+        setLoading(false);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        setError("Failed to fetch event data.");
+        setLoading(false);
+        console.log(err);
+      });
   }, [id]);
 
   function handleChange(e) {
@@ -21,11 +28,18 @@ function Edit() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    axios.post(`/edit_user/${id}`, data)
+  
+    axios.post(`http://localhost:5000/api/events/edit_user/${id}`, data)
       .then(() => navigate("/"))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.error("Failed to save event data", err);
+        setError("Failed to save event data.");
+      });
   }
+  
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="container-fluid bg-light vh-100">

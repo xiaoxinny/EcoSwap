@@ -12,9 +12,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/login", { email, password });
+      const response = await axios.post("http://localhost:5000/api/login", { email, password });
       if (response.data.success) {
-        localStorage.setItem('authToken', response.data.token);
+        
         if (response.data.isStaff) {
           navigate("/");
         } else {
