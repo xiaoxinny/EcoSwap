@@ -22,7 +22,7 @@ function CustomerView() {
 
   return (
     <div className="customer-view-container">
-      <button className="btn btn-danger sign-out-button" onClick={handleSignOut}>Sign Out</button> // signout here is a placeholder, replace with universal navbar
+      <button className="btn btn-danger sign-out-button" onClick={handleSignOut}>Sign Out</button> {/* signout here is a placeholder, replace with universal navbar */}
       <div>
         <h1>  </h1>
       </div>
