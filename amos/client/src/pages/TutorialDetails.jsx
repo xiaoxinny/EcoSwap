@@ -56,14 +56,6 @@ function TutorialDetails() {
                 className="tutorial-image"
               />
             )}
-            <Box className="absolute-box">
-              <Button className="transparent-button">
-                &lt;
-              </Button>
-              <Button className="transparent-button">
-                &gt;
-              </Button>
-            </Box>
           </Box>
           <Box sx={{ padding: 2 }}>
             <Typography variant="h6" className="bold-typography">
