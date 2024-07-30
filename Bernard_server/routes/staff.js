@@ -145,33 +145,33 @@ router.put('/staff-profile', validateToken, upload.single('profilePicture'), asy
   });
 
 // Change password route
-router.put('/staff-change-password', validateToken, async (req, res) => {
-    const { currentPassword, newPassword } = req.body;
+// router.put('/staff-change-password', validateToken, async (req, res) => {
+//     const { currentPassword, newPassword } = req.body;
   
-    try {
-      const staff = await Staff.findByPk(req.user.id);
-      if (!staff) {
-        return res.status(404).json({ message: 'Staff not found.' });
-      }
+//     try {
+//       const staff = await Staff.findByPk(req.user.id);
+//       if (!staff) {
+//         return res.status(404).json({ message: 'Staff not found.' });
+//       }
   
-      const match = await bcrypt.compare(currentPassword, staff.password);
-      if (!match) {
-        return res.status(400).json({ message: 'Current password is incorrect.' });
-      }
+//       const match = await bcrypt.compare(currentPassword, staff.password);
+//       if (!match) {
+//         return res.status(400).json({ message: 'Current password is incorrect.' });
+//       }
   
-      if (newPassword.trim() === '') {
-        return res.status(400).json({ message: 'New password cannot be empty.' });
-      }
+//       if (newPassword.trim() === '') {
+//         return res.status(400).json({ message: 'New password cannot be empty.' });
+//       }
   
-      staff.password = await bcrypt.hash(newPassword, 10);
-      await staff.save();
+//       staff.password = await bcrypt.hash(newPassword, 10);
+//       await staff.save();
   
-      res.json({ message: 'Password changed successfully.' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error while changing password.' });
-    }
-  });
+//       res.json({ message: 'Password changed successfully.' });
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).json({ message: 'Error while changing password.' });
+//     }
+//   });
 
 router.get('/showstaff', async (req, res) => {
     try {
@@ -182,20 +182,20 @@ router.get('/showstaff', async (req, res) => {
     }
   })
 
-router.get('/showstaff/:id', async (req, res) => {
-    try {
-      const staffId = req.params.id;
-      const staff = await Staff.findByPk(staffId, {
-        attributes: ['email', 'username', 'phoneNumber', 'profilePicture']
-      });
-      if (!staff) {
-        return res.status(404).json({ message: 'Staff not found' });
-      }
-      res.json({ staff });
-    } catch (err) {
-      res.status(500).json({ message: "Error fetching staff" });
-    }
-  });
+// router.get('/showstaff/:id', async (req, res) => {
+//     try {
+//       const staffId = req.params.id;
+//       const staff = await Staff.findByPk(staffId, {
+//         attributes: ['email', 'username', 'phoneNumber', 'profilePicture']
+//       });
+//       if (!staff) {
+//         return res.status(404).json({ message: 'Staff not found' });
+//       }
+//       res.json({ staff });
+//     } catch (err) {
+//       res.status(500).json({ message: "Error fetching staff" });
+//     }
+//   });
 
 // Delete staff
 router.delete('/showstaff/:id', async (req, res) => {

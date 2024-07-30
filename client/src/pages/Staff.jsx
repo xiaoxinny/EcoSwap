@@ -1,68 +1,127 @@
-// src/pages/Users.js
+//Diplay all staff (if u dont want staff to delete staff just remove the button)
 import React, { useState, useEffect } from 'react';
 import http from '../http';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TableSortLabel, TextField } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-const Users = () => {
-  const [users, setUsers] = useState([]);
+const Staff = () => {
+  const [staff, setStaff] = useState([]);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('email');
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUsers();
+    fetchStaff();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchStaff = async () => {
     try {
-      const response = await http.get('/staff/showstaff'); 
-      const allUsers = response.data.staff;
-      const userAccounts = allUsers.filter(user => user.role === 'staff');
-      setUsers(userAccounts);
+      const response = await http.get('/staff/showstaff');
+      const allStaff = response.data.staff;
+      const staffAccounts = allStaff.filter(staff => staff.role === 'staff');
+      setStaff(staffAccounts);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching staff:", error);
     }
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this user?");
+    const confirmed = window.confirm("Are you sure you want to delete this staff member?");
     if (!confirmed) {
       return;
     }
 
     try {
-      await http.delete(`/staff/showstaff/${id}`); 
-      setUsers(users.filter(user => user.id !== id));
+      await http.delete(`/staff/showstaff/${id}`);
+      setStaff(staff.filter(staff => staff.id !== id));
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error deleting staff:", error);
     }
   };
+
+  const handleSort = (property) => {
+    const isAscending = orderBy === property && order === 'asc';
+    setOrder(isAscending ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
+  const filteredStaff = staff.filter(staff =>
+    staff.username.toLowerCase().includes(searchQuery)
+  );
+
+  const sortedStaff = [...filteredStaff].sort((a, b) => {
+    let valueA = a[orderBy] != null ? String(a[orderBy]) : '';
+    let valueB = b[orderBy] != null ? String(b[orderBy]) : '';
+    
+    if (order === 'asc') {
+      return valueA.localeCompare(valueB);
+    } else {
+      return valueB.localeCompare(valueA);
+    }
+  });
 
   return (
     <div>
       <h2>Staff's Account</h2>
+      <TextField
+        label="Search Username"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        style={{ width: '520px' }}
+      />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Email</TableCell>
-              <TableCell>Username</TableCell>
-              <TableCell>Contact Number</TableCell>
-              <TableCell>Date of Birth</TableCell>
-              <TableCell>Location</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'email'}
+                  direction={order}
+                  onClick={() => handleSort('email')}
+                >
+                  Email
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'username'}
+                  direction={order}
+                  onClick={() => handleSort('username')}
+                >
+                  Username
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'contactNumber'}
+                  direction={order}
+                  onClick={() => handleSort('contactNumber')}
+                >
+                  Contact Number
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map(user => (
-              <TableRow key={user.id}>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.contactNumber}</TableCell>
-                <TableCell>{user.dateOfBirth}</TableCell>
-                <TableCell>{user.location}</TableCell>
+            {sortedStaff.map(staff => (
+              <TableRow key={staff.id}>
+                <TableCell>{staff.email}</TableCell>
+                <TableCell>{staff.username}</TableCell>
+                <TableCell>{staff.contactNumber}</TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => handleDelete(user.id)}
+                    onClick={() => handleDelete(staff.id)}
                     style={{ backgroundColor: 'red' }}
                   >
                     Delete
@@ -77,4 +136,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Staff;

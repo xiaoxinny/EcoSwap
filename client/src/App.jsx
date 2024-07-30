@@ -12,9 +12,11 @@ import AccountInfo from './pages/AccountInfo';
 import Users from './pages/Users';
 import UserEdit from './pages/UserEdit';
 import SetUsername from './pages/SetUsername';
+import StaffEdit from './pages/StaffEdit';
 import Password from './pages/ChangePassword';
 import EditUser from './pages/EditUser';
 import Staff from './pages/Staff';
+import StaffInfo from './pages/StaffProfile'; // Assuming this component exists
 import UserContext from './contexts/UserContext';
 import http from './http';
 import StaffLogin from './pages/StaffLogin';
@@ -33,7 +35,7 @@ function App() {
         console.log('Fetched user data:', res.data.user);
         setUser(res.data.user);
       }).catch((error) => {
-        console.error('Error fetching user data:', error)
+        console.error('Error fetching user data:', error);
       });
     }
   }, []);
@@ -50,29 +52,37 @@ function App() {
                     ECOSWAP
                   </Typography>
                 </Link>
-                <Link to="/" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                  <Typography variant="h6" component="div">
-                    Home
-                  </Typography>
-                </Link>
+                {user && user.role === 'staff' ? (
+                  <>
+                    <Link to="/users" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                      <Typography variant="h6" component="div">
+                        Users
+                      </Typography>
+                    </Link>
+                    <Link to="/staff" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                      <Typography variant="h6" component="div">
+                        Staff
+                      </Typography>
+                    </Link>
+                  </>
+                ) : (
+                  <Link to="/" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                    <Typography variant="h6" component="div">
+                      Home
+                    </Typography>
+                  </Link>
+                )}
                 <Box sx={{ flexGrow: 1 }} />
                 {user ? (
                   <>
                     {user.role === 'staff' ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Link to="/users">
-                          <Typography variant="h6" component="div">
-                            Users
-                          </Typography>
-                        </Link>
-                        <Link to="/staff">
-                          <Typography variant="h6" component="div">
-                            Staff
-                          </Typography>
-                        </Link>
-                      </Box>
+                      <Link to="/staff-info" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                        <Typography variant="h6" component="div">
+                          Staff Info
+                        </Typography>
+                      </Link>
                     ) : (
-                      <Link to="/account">
+                      <Link to="/account" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
                         <Typography variant="h6" component="div">
                           Account Info
                         </Typography>
@@ -82,13 +92,10 @@ function App() {
                   </>
                 ) : (
                   <>
-                    {/* <Link to="/staff-register">
-                      <Typography>Staff Register</Typography>
-                    </Link> */}
-                    <Link to="/register">
+                    <Link to="/register" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
                       <Typography>Register</Typography>
                     </Link>
-                    <Link to="/login">
+                    <Link to="/login" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
                       <Typography>Login</Typography>
                     </Link>
                   </>
@@ -104,13 +111,15 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/account" element={<AccountInfo />} />
               <Route path="/users" element={<Users />} />
-              <Route path="/user-edit" element={<UserEdit/>}/>
+              <Route path="/user-edit" element={<UserEdit />} />
               <Route path="/set-username" element={<SetUsername />} />
               <Route path="/change-password" element={<Password />} />
               <Route path="/edit-user/:id" element={<EditUser />} />
               <Route path="/staff" element={<Staff />} />
               <Route path="/staff-login" element={<StaffLogin />} />
-              <Route path="/set-password" element={<SetPassword />}/>
+              <Route path="/set-password" element={<SetPassword />} />
+              <Route path="/staff-info" element={<StaffInfo />} />
+              <Route path="/staff-edit" element={<StaffEdit />} />
             </Routes>
           </Container>
         </ThemeProvider>
