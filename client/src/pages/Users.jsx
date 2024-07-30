@@ -1,3 +1,5 @@
+// Display all the users
+
 import React, { useState, useEffect } from 'react';
 import http from '../http';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TableSortLabel, TextField } from '@mui/material';

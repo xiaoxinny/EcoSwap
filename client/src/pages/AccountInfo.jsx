@@ -1,3 +1,5 @@
+//This page is basicallly for the user to view their profile
+
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import http from '../http';

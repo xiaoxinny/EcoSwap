@@ -11,7 +11,7 @@ const multer = require('multer');
 const path = require('path');
 require('dotenv').config();
 
-
+//Downloads the user picture from google login
 const downloadImage = async (url, filepath) => {
     const writer = fs.createWriteStream(filepath);
   
@@ -45,6 +45,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// User register account
 router.post('/register', async (req, res) => {
     let { email, password, role } = req.body;
     const validationSchema = yup.object({
@@ -73,6 +74,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
+//User login
 router.post('/login', async (req, res) => {
     let data = req.body;
     let errorMsg = "Email or password is not correct.";
@@ -96,7 +98,7 @@ router.post('/login', async (req, res) => {
     res.json({ accessToken, user: userInfo });
 });
 
-// Set username and password for Google login users
+// Set password for Google login users
 router.post('/set-password', async (req, res) => {
     const { email, username, password, profilePicture } = req.body;
 
@@ -137,8 +139,7 @@ router.post('/set-password', async (req, res) => {
     }
 });
   
-
-
+//Check whether if email is in database else create a new user (google login)
 router.post('/check-email', async (req, res) => {
     const { email } = req.body;
     try {
@@ -160,8 +161,6 @@ router.post('/check-email', async (req, res) => {
     }
 });
 
-
-
 router.get('/auth', validateToken, (req, res) => {
     let userInfo = {
         id: req.user.id,
@@ -171,6 +170,7 @@ router.get('/auth', validateToken, (req, res) => {
     res.json({ user: userInfo });
 });
 
+//View profile
 router.get('/profile', validateToken, async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
@@ -182,6 +182,7 @@ router.get('/profile', validateToken, async (req, res) => {
     }
 });
 
+//Update profile
 router.put('/profile', validateToken, upload.single('profilePicture'), async (req, res) => {
     try {
         const { username, contactNumber, dateOfBirth, location } = req.body;
@@ -247,6 +248,7 @@ router.put('/change-password', validateToken, async (req, res) => {
     }
 })
 
+// This is for the staff to see all the users
 router.get('/showusers', async (req, res) => {
     try {
         const users = await User.findAll();
@@ -256,6 +258,7 @@ router.get('/showusers', async (req, res) => {
     }
 });
 
+// For staff to edit user
 router.get('/showusers/:id', async (req, res) => {
     try {
         const userId = req.params.id;
@@ -271,7 +274,7 @@ router.get('/showusers/:id', async (req, res) => {
     }
 });
 
-// src/routes/users.js
+// For staff to edit and make changes to user account
 router.put('/showusers/:id', async (req, res) => {
     try {
         const userId = req.params.id;
@@ -302,6 +305,7 @@ router.put('/showusers/:id', async (req, res) => {
     }
 });
 
+// For staff to delete user account
 router.delete('/showusers/:id', async (req, res) => {
     try {
         const userId = req.params.id;
@@ -312,7 +316,7 @@ router.delete('/showusers/:id', async (req, res) => {
     }
 });
 
-// In your user routes (user.js)
+// User to set their user name after creating new account (non google)
 router.put('/set-username', validateToken, async (req, res) => {
     const { username } = req.body;
     const userId = req.user.id;

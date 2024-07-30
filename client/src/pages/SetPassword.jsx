@@ -1,3 +1,6 @@
+/*This page is for people that logged in with google for the first time, they will need to create a 
+password so that i can create them an account so they would be able to login even without google*/
+
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserContext from '../contexts/UserContext';

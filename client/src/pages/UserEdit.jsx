@@ -1,3 +1,5 @@
+// User to edit their own profile
+
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import http from '../http';

@@ -17,7 +17,6 @@ import EditUser from './pages/EditUser';
 import Staff from './pages/Staff';
 import UserContext from './contexts/UserContext';
 import http from './http';
-import StaffRegister from './pages/StaffRegister';
 import StaffLogin from './pages/StaffLogin';
 
 const logout = () => {
@@ -102,7 +101,6 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/staff-register" element={<StaffRegister />} />
               <Route path="/login" element={<Login />} />
               <Route path="/account" element={<AccountInfo />} />
               <Route path="/users" element={<Users />} />

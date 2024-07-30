@@ -1,3 +1,6 @@
+/* This page is the place for staff login, not visible from anywhere, you need to go to the url and
+change to http://localhost:3000/staff-login */
+
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import http from '../http';

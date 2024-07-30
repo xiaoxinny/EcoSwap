@@ -1,3 +1,5 @@
+//This page is for STAFF to edit the user account
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import http from '../http';

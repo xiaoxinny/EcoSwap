@@ -28,7 +28,7 @@ const Users = () => {
     }
 
     try {
-      await http.delete(`/user/showstaff/${id}`); 
+      await http.delete(`/staff/showstaff/${id}`); 
       setUsers(users.filter(user => user.id !== id));
     } catch (error) {
       console.error("Error deleting user:", error);

@@ -1,3 +1,5 @@
+//This page is for the user to change their password
+
 import React, { useState } from 'react';
 import http from '../http';
 import './ChangePassword.css';

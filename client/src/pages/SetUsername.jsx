@@ -1,3 +1,5 @@
+/* This page is for user to set a username after they created an account (not google) normal registration */
+
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import http from '../http';

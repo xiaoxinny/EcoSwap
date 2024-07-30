@@ -21,6 +21,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
  
+// http://localhost:3001/staff/staff-register to create a staff (use postman)
 router.post('/staff-register', async (req, res) => {
     const { email, password, username, phoneNumber } = req.body;
 
@@ -29,7 +30,7 @@ router.post('/staff-register', async (req, res) => {
         email: yup.string().trim().lowercase().email().max(100).required(),
         password: yup.string().trim().min(8).max(100).required()
             .matches(/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/, "Password must contain at least 1 letter and 1 number"),
-        username: yup.string().trim().max(50),
+        username: yup.string().trim().max(50).required(),
         phoneNumber: yup.string().trim().max(20),
     });
 
@@ -69,7 +70,7 @@ router.post('/staff-register', async (req, res) => {
 });
 
 
-// Staff login route
+// Staff login 
 router.post('/staff-login', async (req, res) => {
     const { email, password } = req.body;
     const errorMsg = "Email or password is incorrect.";
@@ -196,6 +197,7 @@ router.get('/showstaff/:id', async (req, res) => {
     }
   });
 
+// Delete staff
 router.delete('/showstaff/:id', async (req, res) => {
     try {
       const staffId = req.params.id;
