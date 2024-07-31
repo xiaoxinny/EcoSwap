@@ -27,7 +27,7 @@ const AccountInfo = () => {
         setFormData({
           username: userData.username || '',
           email: userData.email || '',
-          contactNumber: userData.contactNumber || '',
+          contactNumber: userData.phoneNumber || '',
           profilePicture: userData.profilePicture || null,
         });
         if (userData.profilePicture) {

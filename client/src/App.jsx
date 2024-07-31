@@ -16,10 +16,17 @@ import StaffEdit from './pages/StaffEdit';
 import Password from './pages/ChangePassword';
 import EditUser from './pages/EditUser';
 import Staff from './pages/Staff';
-import StaffInfo from './pages/StaffProfile'; // Assuming this component exists
+import StaffInfo from './pages/StaffProfile';
 import UserContext from './contexts/UserContext';
 import http from './http';
 import StaffLogin from './pages/StaffLogin';
+import Tutorials from './pages/Tutorials';
+import AddTutorial from './pages/AddTutorial';
+import EditTutorial from './pages/EditTutorial';
+import MyForm from './pages/MyForm';
+import Rewards from './pages/Rewards';
+import TutorialDetails from './pages/TutorialDetails';
+import StaffRegister from './pages/StaffRegister'
 
 const logout = () => {
   localStorage.clear();
@@ -31,12 +38,13 @@ function App() {
 
   useEffect(() => {
     if (localStorage.getItem('accessToken')) {
-      http.get('/user/auth').then((res) => {
-        console.log('Fetched user data:', res.data.user);
-        setUser(res.data.user);
-      }).catch((error) => {
-        console.error('Error fetching user data:', error);
-      });
+      http.get('/user/auth')
+        .then((res) => {
+          setUser(res.data.user);
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error);
+        });
     }
   }, []);
 
@@ -46,57 +54,53 @@ function App() {
         <ThemeProvider theme={MyTheme}>
           <AppBar position="static" className="AppBar">
             <Container>
-              <Toolbar disableGutters={true}>
-                <Link to="/">
-                  <Typography variant="h5" component="div">
-                    ECOSWAP
-                  </Typography>
+              <Toolbar disableGutters>
+                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <Typography variant="h5">ECOSWAP</Typography>
                 </Link>
-                {user && user.role === 'staff' ? (
-                  <>
-                    <Link to="/users" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                      <Typography variant="h6" component="div">
-                        Users
-                      </Typography>
-                    </Link>
-                    <Link to="/staff" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                      <Typography variant="h6" component="div">
-                        Staff
-                      </Typography>
-                    </Link>
-                  </>
-                ) : (
-                  <Link to="/" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                    <Typography variant="h6" component="div">
-                      Home
-                    </Typography>
-                  </Link>
-                )}
                 <Box sx={{ flexGrow: 1 }} />
                 {user ? (
                   <>
                     {user.role === 'staff' ? (
-                      <Link to="/staff-info" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                        <Typography variant="h6" component="div">
-                          Staff Info
-                        </Typography>
-                      </Link>
+                      <>
+                        <Link to="/StaffRegister" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">Create Staff</Typography>
+                        </Link>
+                        <Link to="/users" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">Users</Typography>
+                        </Link>
+                        <Link to="/staff" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">Staff</Typography>
+                        </Link>
+                        <Link to="/staff-info" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">Staff Info</Typography>
+                        </Link>
+
+                      </>
                     ) : (
-                      <Link to="/account" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                        <Typography variant="h6" component="div">
-                          Account Info
-                        </Typography>
-                      </Link>
+                      <>
+                        <Link to="/tutorials" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">Tutorials</Typography>
+                        </Link>
+                        <Link to="/ecopoints" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">EcoPoints</Typography>
+                        </Link>
+                        <Link to="/account" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
+                          <Typography variant="h6">Account Info</Typography>
+                        </Link>
+                      </>
                     )}
-                    <Button onClick={logout}>Logout</Button>
+                    <Button onClick={logout} color="inherit" style={{ marginLeft: '16px' }}>
+                      Logout
+                    </Button>
                   </>
                 ) : (
                   <>
                     <Link to="/register" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                      <Typography>Register</Typography>
+                      <Typography variant="h6">Register</Typography>
                     </Link>
                     <Link to="/login" style={{ textDecoration: 'none', color: 'inherit', marginLeft: '16px' }}>
-                      <Typography>Login</Typography>
+                      <Typography variant="h6">Login</Typography>
                     </Link>
                   </>
                 )}
@@ -120,6 +124,13 @@ function App() {
               <Route path="/set-password" element={<SetPassword />} />
               <Route path="/staff-info" element={<StaffInfo />} />
               <Route path="/staff-edit" element={<StaffEdit />} />
+              <Route path="/tutorials" element={<Tutorials />} />
+              <Route path="/addtutorial" element={<AddTutorial />} />
+              <Route path="/edittutorial/:id" element={<EditTutorial />} />
+              <Route path="/form" element={<MyForm />} />
+              <Route path="/ecopoints" element={<Rewards />} />
+              <Route path="/tutorialdetails/:id" element={<TutorialDetails />} />
+              <Route path="/StaffRegister" element={<StaffRegister />} />
             </Routes>
           </Container>
         </ThemeProvider>

@@ -120,9 +120,10 @@ router.get('/staff-profile', validateToken, async (req, res) => {
     }
   });
 
-router.put('/staff-profile', validateToken, upload.single('profilePicture'), async (req, res) => {
+  router.put('/staff-profile', validateToken, upload.single('profilePicture'), async (req, res) => {
     try {
-      const { username, phoneNumber } = req.body;
+      console.log('Request Body:', req.body);
+      const { username, contactNumber } = req.body; // Use contactNumber here
       const staff = await Staff.findByPk(req.user.id);
   
       if (!staff) {
@@ -130,12 +131,13 @@ router.put('/staff-profile', validateToken, upload.single('profilePicture'), asy
       }
   
       if (username) staff.username = username;
-      if (phoneNumber) staff.phoneNumber = phoneNumber;
+      if (contactNumber) staff.phoneNumber = contactNumber; // Update phoneNumber here
       if (req.file) staff.profilePicture = req.file.path;
   
       await staff.save();
       res.json({ message: "Staff details updated successfully" });
     } catch (err) {
+      console.error('Update Error:', err);
       if (err instanceof yup.ValidationError) {
         res.status(400).json({ errors: err.errors });
       } else {
@@ -143,6 +145,8 @@ router.put('/staff-profile', validateToken, upload.single('profilePicture'), asy
       }
     }
   });
+  
+  
 
 // Change password route
 // router.put('/staff-change-password', validateToken, async (req, res) => {

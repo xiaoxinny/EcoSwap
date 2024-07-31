@@ -1,0 +1,59 @@
+.page-container {
+  background-color: #f0f8f0;
+  min-height: 100vh;
+  padding: 16px; /* 2 * 8px (default spacing unit) */
+}
+
+.paper-container {
+  max-width: 600px;
+  margin: auto;
+  overflow: hidden;
+}
+
+.relative-box {
+  position: relative;
+}
+
+.tutorial-image {
+  width: 100%;
+  height: auto;
+}
+
+.absolute-box {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.transparent-button {
+  background-color: rgba(255, 255, 255, 0.7);
+  min-width: auto;
+  padding: 4px;
+}
+
+.bold-typography {
+  font-weight: bold;
+  margin-bottom: 8px; /* 1 * 8px (default spacing unit) */
+}
+
+.grid-container {
+  margin-bottom: 16px; /* 2 * 8px (default spacing unit) */
+}
+
+.request-button {
+  background-color: #8ede8e;
+  color: black;
+}
+
+.request-button:hover {
+  background-color: #7ac97a;
+}
+
+.gray-typography {
+  margin-top: 16px; /* 2 * 8px (default spacing unit) */
+  margin-bottom: 8px; /* 1 * 8px (default spacing unit) */
+  color: gray;
+}

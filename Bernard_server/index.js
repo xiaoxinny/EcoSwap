@@ -12,6 +12,7 @@ require('dotenv').config();
 require('./config/passport-setup');
 
 const app = express();
+app.use(express.static('public'));
 
 // Middleware
 app.use(express.json());
@@ -36,6 +37,12 @@ app.use("/user", userRoute);
 
 const staffRoute = require('./routes/staff');
 app.use("/staff", staffRoute);
+
+const tutorialRoute = require('./routes/tutorial');
+app.use("/tutorial", tutorialRoute);
+
+const fileRoute = require('./routes/file');
+app.use("/file", fileRoute);
 
 // Google Auth Routes
 app.get('/auth/google',

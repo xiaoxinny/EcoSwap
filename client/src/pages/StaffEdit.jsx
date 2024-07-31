@@ -13,8 +13,6 @@ const StaffEdit = () => {
     const [formData, setFormData] = useState({
         username: '',
         contactNumber: '',
-        dateOfBirth: '',
-        location: '',
         profilePicture: null,
     });
     const [profilePicturePreview, setProfilePicturePreview] = useState(defaultProfilePicture);
