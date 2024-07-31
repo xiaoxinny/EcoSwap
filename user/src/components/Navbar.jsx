@@ -109,25 +109,17 @@ export default function Navbar() {
           </IconButton>
           <img src={logo_flat} alt="logo" id="flat-logo" />
           <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
-            <Link href="/listings" underline="none" color="inherit">
-              <Typography  component="div" sx={{ color: 'black', ml: 2 }}>
-                Listings
-              </Typography>
+            <Link href="/listings" underline="none" color="black" sx={{ml:2}}>
+              Listings
             </Link>
-            <Link href="/about" underline="none" color="inherit">
-              <Typography  component="div" sx={{ color: 'black', ml: 2 }}>
-                About
-              </Typography>
+            <Link href="/about" underline="none" color="black" sx={{ml:2}}>
+              About
             </Link>
-            <Link href="/events" underline="none" color="inherit">
-              <Typography  component="div" sx={{ color: 'black', ml: 2 }}>
-                Events
-              </Typography>
+            <Link href="/events" underline="none" color="black" sx={{ml:2}}>
+              Events
             </Link>
-            <Link href="/support" underline="none" color="inherit">
-              <Typography  component="div" sx={{ color: 'black', ml: 2 }}>
-                Support
-              </Typography>
+            <Link href="/support" underline="none" color="black" sx={{ml:2}}>
+              Support
             </Link>
           </Box>
           <Box sx={{ flexGrow: 1 }} />

@@ -143,7 +143,7 @@ function FAQ() {
   };
 
   return (
-    <>
+    <div>
       <Container sx={{ height: "50vh"}}>
         <h1>FAQ Management</h1>
         <Stack direction="row" spacing={2} justifyContent="flex-end" mb={2}>
@@ -286,7 +286,7 @@ function FAQ() {
           />
         </Paper>
       </Container>
-      <Container sx={{ height: "50vh" }}>
+      <Container sx={{ height: "50vh"}}>
         <h1>History</h1>
         <Paper sx={{ width: "100%", overflow: "hidden" }}></Paper>
       </Container>
@@ -305,7 +305,7 @@ function FAQ() {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 }
 

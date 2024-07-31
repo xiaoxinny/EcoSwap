@@ -1,23 +1,17 @@
 module.exports = (sequelize, DataTypes) => {
-    const FAQs = sequelize.define(
-        "FAQs",
+    const Chats = sequelize.define(
+        "Chats",
         {
-        id: {
-            autoIncrement: true,
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            primaryKey: true,
-        },
-        question: {
+        socket_id: {
             type: DataTypes.STRING(255),
             allowNull: false,
         },
-        answer: {
-            type: DataTypes.TEXT,
+        room_name: {
+            type: DataTypes.STRING(255),
             allowNull: false,
         },
-        category: {
-            type: DataTypes.STRING(255),
+        chat_data: {
+            type: DataTypes.JSON,
             allowNull: false,
         },
         createdAt: {
@@ -32,9 +26,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         },
         {
-        tableName: "FAQs",
+        tableName: "Chats",
         timestamps: true,
         }
     );
-    return FAQs;
+    return Chats;
     }

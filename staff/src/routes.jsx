@@ -8,6 +8,7 @@ import Violations from './pages/Support/Violations/Violations';
 import Appeals from './pages/Support/Appeals/Appeals';
 import Chats from './pages/Support/LiveChat/Chats';
 import Accounts from './pages/Support/Accounts/Accounts';
+import IndvChat from './pages/Support/LiveChat/IndvChat';
 
 const StaffRoutes = () => {
     return (
@@ -20,6 +21,7 @@ const StaffRoutes = () => {
                 <Route path="/violations" element={<Violations />} />
                 <Route path="/appeals" element={<Appeals />} />
                 <Route path="/live-support" element={<Chats />} />
+                <Route path="/live-support/:room" element={<IndvChat />} />
                 <Route path="/accounts" element={<Accounts />} />
             </Route>
         </Routes>

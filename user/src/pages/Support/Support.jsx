@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import {
   Container,
@@ -15,7 +16,8 @@ import {
   AccordionSummary,
   AccordionDetails,
   Typography,
-  CircularProgress, // Import CircularProgress
+  CircularProgress,
+  Button, // Import CircularProgress
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HelpIcon from "@mui/icons-material/Help";
@@ -28,11 +30,18 @@ import "../../styles/support.css";
 import http from "../../http.js";
 
 function Support() {
+  const navigate = useNavigate();
   const [faqs, setFaqs] = useState([]); // Initialize as an empty array
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredFaqs, setFilteredFaqs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // State to manage search query
+  const [filteredFaqs, setFilteredFaqs] = useState([]); // State to manage filtered FAQs
   const [loading, setLoading] = useState(false); // State to manage loading
 
+  // Navigations
+  const toChat = () => {
+    navigate("./livechat");
+  };
+
+  // To be removed
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
     ...theme.typography.body2,
@@ -41,6 +50,7 @@ function Support() {
     color: theme.palette.text.secondary,
   }));
 
+  // For fetching FAQs
   useEffect(() => {
     const fetchFAQ = async () => {
       setLoading(true); // Start loading
@@ -62,6 +72,7 @@ function Support() {
     fetchFAQ();
   }, []);
 
+  // For filtering FAQs
   useEffect(() => {
     if (searchQuery) {
       setLoading(true); // Start loading
@@ -224,6 +235,7 @@ function Support() {
             <div id="LiveChat">
               <h1>Chat with us now!</h1>
               <Item>Livechat </Item>
+              <Button variant="contained" color="primary" onClick={toChat}>Go to Chat</Button>
             </div>
           </Grid>
           <Grid item xs={12}>

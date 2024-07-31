@@ -138,7 +138,7 @@ const EditFAQ = () => {
         </Button>
         <Button
           component={Link}
-          to="/faqs"
+          to="/faq"
           variant="contained"
           sx={{
             backgroundColor: "black",

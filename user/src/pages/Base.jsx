@@ -1,12 +1,23 @@
 import React from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 function Layout() {
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        justifyContent: "space-between",
+      }}
+    >
       <Navbar />
-      <Outlet />
+      <div style={{ flexGrow: 1 }}>
+        <Outlet />
+      </div>
+      <Footer />
     </div>
   );
 }
