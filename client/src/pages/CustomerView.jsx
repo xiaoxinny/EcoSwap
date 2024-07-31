@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import './CustomerView.css';
+import '../styles/CustomerView.css';
 
 function CustomerView() {
   const [events, setEvents] = useState([]);

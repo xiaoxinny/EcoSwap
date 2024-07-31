@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Home from "./elements/Home";
-import Create from "./elements/Create";
-import Edit from "./elements/Edit";
-import Read from "./elements/Read";
-import CustomerView from "./elements/CustomerView";
-import CustomerViewDetail from "./elements/CustomerViewDetail";
-import Login from "./elements/Login";
-import Register from "./elements/Register";
+import Home from "./pages/Home";
+import Create from "./pages/Create";
+import Edit from "./pages/Edit";
+import Read from "./pages/Read";
+import CustomerView from "./pages/CustomerView";
+import CustomerViewDetail from "./pages/CustomerViewDetail";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
