@@ -10,10 +10,17 @@ app.use(express.json());
 const port = 5000;
 
 const eventRoutes = require('./routes/event.controller');
+<<<<<<< Updated upstream
 const loginRoutes = require('./routes/login.controller');
 
 app.use('/api/events', eventRoutes);
 app.use('/api', loginRoutes);
+=======
+
+
+app.use('/api/events', eventRoutes);
+
+>>>>>>> Stashed changes
 
 
 app.listen(port, () => {
