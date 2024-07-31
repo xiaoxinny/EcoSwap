@@ -3,8 +3,9 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Listings from './pages/Listings';
 import Events from './pages/Events';
-import Support from './pages/Support';
+import Support from './pages/Support/Support';
 import Base from './pages/Base';
+import Chat from './pages/Support/Chat';
 
 const UserRoutes = () => {
     return (
@@ -15,6 +16,7 @@ const UserRoutes = () => {
                 <Route path="/listings" element={<Listings />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/support" element={<Support />} />
+                <Route path="/support/livechat" element={<Chat />} />
             </Route>
         </Routes>
     )

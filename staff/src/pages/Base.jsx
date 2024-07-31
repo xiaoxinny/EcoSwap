@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Outlet, Link } from "react-router-dom";
-import "../styles/Base.css";
-import logo_flat from "../assets/logo-flat.png";
+import "../styles/base.css";
 import logo_circle from "../assets/logo-circular.png";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useMediaQuery, useTheme } from '@mui/material';
@@ -86,7 +85,7 @@ function Layout() {
   // For repeated printing of options in navbar
   const drawer = (
     <div>
-      <img src={logo_circle} alt="logo" id="circle-logo" />
+      <Link to="/" id="logo-link"><img src={logo_circle} alt="logo" id="circle-logo" /></Link>
       <List>
         {["Dashboard", "Accounts", "Violations",  "Appeals", "FAQ", "Live Support"].map(
           (text, index) => (
@@ -239,7 +238,6 @@ function Layout() {
           sx={{
             flexGrow: 1,
             p: 3,
-            ml: 3,
             width: { sm: `calc(100% - ${drawerWidth}px)` },
             display: { xs: "none", sm: "block" },
             backgroundColor: "#f0f0f0",
