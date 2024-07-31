@@ -17,6 +17,12 @@ const UserRoutes = () => {
                 <Route path="/events" element={<Events />} />
                 <Route path="/support" element={<Support />} />
                 <Route path="/support/livechat" element={<Chat />} />
+                <Route path={"/tutorials"} element={<Tutorials />} />
+                <Route path={"/addtutorial"} element={<AddTutorial />} />
+                <Route path={"/edittutorial/:id"} element={<EditTutorial />} />
+                <Route path={"/form"} element={<MyForm />} />
+                <Route path={"/ecopoints"} element={<Rewards />} />
+                <Route path={"/tutorialdetails/:id"} element={<TutorialDetails />} />
             </Route>
         </Routes>
     )
