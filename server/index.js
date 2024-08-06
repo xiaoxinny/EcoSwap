@@ -1,20 +1,66 @@
 const { Chats } = require('./models');
 const express = require("express");
+const session = require('express-session');
+const passport = require('passport');
+const { OAuth2Client } = require('google-auth-library');
 const app = express();
 const cors = require("cors");
 const db = require("./models");
 const http = require("http");
 const fs = require('fs');
 const path = require('path');
+const sign = require('jsonwebtoken').sign;
 
 require("dotenv").config();
+app.use(session({
+  secret: process.env.COOKIE_KEY,
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Routes
+const userRoute = require('./routes/Accounts/user');
+app.use("/user", userRoute);
+
+const staffRoute = require('./routes/Accounts/staff');
+app.use("/staff", staffRoute);
+
+// Google Auth Routes
+app.get('/auth/google',
+    passport.authenticate('google', {
+        scope: ['profile', 'email']
+    })
+);
+
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/' }),
+    (req, res) => {
+        const token = sign({ id: req.user.id, email: req.user.email, role: req.user.role }, process.env.APP_SECRET);
+        res.redirect(`${process.env.CLIENT_URL}/account?token=${token}`);
+    }
+);
+
+app.get('/api/check-auth', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ authenticated: true, user: req.user });
+    } else {
+        res.json({ authenticated: false });
+    }
+});
 
 app.use(express.json());
+
+// Initialize Passport
+require('./config/passport-setup');
 
 // Allow CORS from different endpoints
 const corsOptions = {
   origin: ["http://localhost:4000", "http://localhost:3000"],
   optionsSuccessStatus: 200,
+  credentials: true
 };
 app.use(cors(corsOptions));
 
@@ -71,71 +117,6 @@ io.on('connection', (socket) => {
     socket.leave(data.room);
 
   });
-
-
-  // socket.on('staffLogin', ({ username }) => {
-  //   currentUsername = username;
-  //   isStaff = true;
-  //   socket.emit('roomsList', Object.keys(staffRooms));
-  // });
-
-  // socket.on('staffJoinedRoom', ({ room, username }) => {
-  //   currentRoom = room;
-  //   currentUsername = username;
-
-  //   const joinMessage = { sender: 'System', text: `Staff member ${username} joined the chat.`, timestamp: new Date() };
-  //   if (!chatHistory[room]) {
-  //     chatHistory[room] = [];
-  //   }
-  //   chatHistory[room].push(joinMessage);
-
-  //   socket.join(room);
-  //   io.to(room).emit('chatMessage', joinMessage);
-  // });
-
-  // socket.on('chatMessage', ({ room, msg, username }) => {
-  //   if (!room || !msg) return;
-  //   const message = { sender: username, text: msg, timestamp: new Date(), room: room };
-
-  //   if (!chatHistory[room]) {
-  //     chatHistory[room] = [];
-  //   }
-  //   console.log('Message:', message);
-  //   chatHistory[room].push(message);
-  //   io.to(room).emit('chatMessage', message); // Broadcast to room
-  // });
-
-  // socket.on('userMessage', ({ msg }) => {
-  //   if (!msg || !currentRoom) return;
-  //   const message = { sender: currentUsername, text: msg, timestamp: new Date(), room: currentRoom };
-
-  //   if (!chatHistory[currentRoom]) {
-  //     chatHistory[currentRoom] = [];
-  //   }
-  //   console.log('userMessage:', message);
-  //   chatHistory[currentRoom].push(message);
-  //   io.to(currentRoom).emit('chatMessage', message); // Broadcast to room
-  // });
-
-//   socket.on('disconnect', () => {
-//     if (currentRoom && currentUsername) {
-//       const leaveMessage = { sender: 'System', text: `${currentUsername} left the chat.`, timestamp: new Date() };
-
-//       if (chatHistory[currentRoom]) {
-//         chatHistory[currentRoom].push(leaveMessage);
-//         io.to(currentRoom).emit('chatMessage', leaveMessage);
-//       }
-
-//       if (staffRooms[currentRoom]) {
-//         staffRooms[currentRoom] = staffRooms[currentRoom].filter(id => id !== socket.id);
-//         if (staffRooms[currentRoom].length === 0) {
-//           delete staffRooms[currentRoom];
-//         }
-//       }
-
-//       io.emit('roomsList', Object.keys(staffRooms));
-//     }
-//   });
 });
 
 app.get('/downloadTranscript/:socket_id', async (req, res) => {
@@ -183,10 +164,10 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-const faqRoutes = require("./routes/faq.controller.js");
+const faqRoutes = require("./routes/Support/faq.controller.js");
 app.use("/faqs", faqRoutes);
 
-const chatRoutes = require("./routes/chats.controller.js");
+const chatRoutes = require("./routes/Support/chats.controller.js");
 app.use("/chats", chatRoutes);
 
 // Sychronizing with database and launching the server

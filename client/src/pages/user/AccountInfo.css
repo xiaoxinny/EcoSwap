@@ -1,0 +1,76 @@
+.account-info-container {
+  max-width: 800px;
+  margin: auto;
+}
+
+.account-info-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.account-info-card {
+  display: flex;
+  flex-direction: row;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.account-info-card .profile-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.account-info-card .profile-picture {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.account-info-card .info-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-left: 20px;
+}
+
+.account-info-card .info-field {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.account-info-card .info-field label {
+  width: 150px;
+  font-weight: bold;
+}
+
+.account-info-card .info-field p {
+  flex: 1;
+  padding: 5px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  height: 20px;
+  line-height: 1.2;
+}
+
+.account-info-card button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.account-info-card .edit-button {
+  margin-top: 20px;
+  background-color: #007bff;
+  color: #fff;
+}

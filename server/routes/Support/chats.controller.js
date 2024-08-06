@@ -1,4 +1,4 @@
-const { Chats } = require("../models");
+const { Chats } = require("../../models");
 const yup = require("yup");
 const express = require("express");
 const router = express.Router();

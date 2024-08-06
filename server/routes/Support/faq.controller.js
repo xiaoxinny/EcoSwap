@@ -1,4 +1,4 @@
-const { FAQs } = require("../models");
+const { FAQs } = require("../../models");
 const { Op } = require("sequelize");
 const yup = require("yup"); 
 const express = require("express");
