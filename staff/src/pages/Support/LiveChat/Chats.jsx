@@ -1,27 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Container,
-  Box,
-  Tabs,
-  Tab,
-  Paper,
-  TextField,
   Button,
   List,
   ListItem,
   ListItemText,
+  TextField,
+  Box,
+  Container,
+  Divider,
 } from "@mui/material";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3001");
- 
+
 function Chats() {
-  const [value, setValue] = useState(0);
-  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
-  const [chatHistory, setChatHistory] = useState({});
   const [username, setUsername] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const roomsRef = useRef(rooms);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("staffUsername");
@@ -30,85 +28,42 @@ function Chats() {
       handleLogin(storedUsername);
     }
 
-    const handleChatMessage = (message) => {
-      if (message.room === roomName) {
-        setChatHistory((prev) => [...prev, message]);
+    const handleDetails = (data) => {
+      const index = roomsRef.current.findIndex(
+        (item) => item.identifier === data.identifier
+      );
+      if (index !== -1) {
+        setRooms((prevRooms) => {
+          const newRooms = [...prevRooms];
+          newRooms[index] = data;
+          roomsRef.current = newRooms;
+          return newRooms;
+        });
+      } else {
+        setRooms((prevRooms) => {
+          const newRooms = [...prevRooms, data];
+          roomsRef.current = newRooms;
+          return newRooms;
+        });
       }
     };
 
-  //   socket.on('chatMessage', handleChatMessage);
+    socket.on("chatDetails", handleDetails);
 
-  //   socket.on('staffJoinedRoom', handleStaffJoinedRoom);
+    return () => {
+      socket.off("chatDetails", handleDetails);
+    };
+  }, []);
 
-  //   socket.on("roomsList", (roomsList) => {
-  //     setRooms(roomsList);
-  //   });
+  const handleLogin = (staffUsername) => {
+    socket.emit("staffLogin", { username: staffUsername });
+    localStorage.setItem("staffUsername", staffUsername);
+    setLoggedIn(true);
+  };
 
-  //   socket.on("chatHistory", (history) => {
-  //     setChatHistory((prev) => ({
-  //       ...prev,
-  //       [rooms[value]]: history,
-  //     }));
-  //   });
-
-  //   return () => {
-  //     socket.off("chatMessage");
-  //     socket.off("roomsList");
-  //     socket.off("chatHistory");
-  //     socket.off("staffJoinedRoom");
-  //   };
-
-  }, [username, value, rooms, message, chatHistory, loggedIn]);
-
-  // // const handleChatMessage = (message) => {
-  // //   setChatHistory((prev) => {
-  // //     const chatHistory = { ...prev };
-  // //     if (!chatHistory[message.room]) {
-  // //       chatHistory[message.room] = [];
-  // //     }
-  // //     chatHistory[message.room].push(message);
-  // //     return chatHistory;
-  // //   });
-  // // };
-
-  // const handleChatMessage = (message) => {
-  //   if (message.room === roomName) {
-  //     setChatHistory((prev) => [...prev, message]);
-  //   }
-  // };
-
-  // const handleJoinChat = (data) => {
-  //   if (data.room === currentRoom) {
-  //     setChatHistory((prev) => [
-  //       ...prev,
-  //       { sender: 'System', text: `${data.username} has joined the room.` }
-  //     ]);
-  //   }
-  // };
-
-  // const handleLogin = (staffUsername) => {
-  //   socket.emit("staffLogin", { username: staffUsername });
-  //   localStorage.setItem("staffUsername", staffUsername);
-  //   setLoggedIn(true);
-  // };
-
-  // const handleSendMessage = () => {
-  //   if (message.trim()) {
-  //     console.log("currentRoom:", rooms[value]);
-  //     console.log("message:", message);
-  //     const storedUsername = localStorage.getItem("staffUsername");
-  //     const room = rooms[value];
-  //     socket.emit("chatMessage", { room, msg: message, username: username || storedUsername });
-  //     setMessage("");
-  //   }
-  // };
-
-  // const handleChange = (event, newValue) => {
-  //   setValue(newValue);
-  //   const room = rooms[newValue];
-  //   socket.emit("staffJoinedRoom", { room, username });
-  // };
-
+  const handleRoomClick = (identifier) => {
+    navigate(`/live-support/${identifier}`);
+  };
 
   return (
     <Container>
@@ -127,43 +82,21 @@ function Chats() {
           </Button>
         </Box>
       ) : (
-        <>
-          <Tabs value={value} onChange={handleChange} aria-label="chat rooms">
-            {rooms.map((room, index) => (
-              <Tab key={index} label={room} />
+        <Container>
+          <h1>Chats</h1>
+          <Divider></Divider>
+          <p>Click on any to begin chatting.</p>
+          <List>
+            {rooms.map((data, index) => (
+              <ListItem key={index} id={data.identifier} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} button onClick={() => handleRoomClick(data.identifier)}>
+                <ListItemText
+                  primary={`${data.sender}: ${data.message}`}
+                  secondary={new Date(data.timestamp).toLocaleString()}
+                />
+              </ListItem>
             ))}
-          </Tabs>
-          {rooms.length > 0 && (
-            <Paper style={{ padding: "10px" }}>
-              <List>
-                {chatHistory[rooms[value]] &&
-                  chatHistory[rooms[value]].map((msg, index) => (
-                    <ListItem key={index}>
-                      <ListItemText
-                        primary={`${msg.sender}: ${msg.text}`}
-                        secondary={new Date(msg.timestamp).toLocaleString()}
-                      />
-                    </ListItem>
-                  ))}
-              </List>
-              <TextField
-                label="Type a message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                fullWidth
-              />
-              <Button variant="contained" onClick={handleSendMessage}>
-                Send
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => handleDownload(rooms[value])}
-              >
-                Download Transcript
-              </Button>
-            </Paper>
-          )}
-        </>
+          </List>
+        </Container>
       )}
     </Container>
   );

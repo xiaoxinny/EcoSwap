@@ -48,9 +48,9 @@ function UserChat() {
       };
 
       const handleChatMessage = (message) => {
-        if (message.room === roomName) {
-          setChatHistory((prev) => [...prev, message]);
-        }
+        console.log(message)
+        setChatHistory((prev) => [...prev, message]);
+        
       };
 
       socket.on("staffJoin", handleStaffJoin);
@@ -72,6 +72,7 @@ function UserChat() {
         socket: socket.id,
         room: `room_${socket.id}`,
         username: username,
+        msg: "User joined the chat.",
       }
       socket.emit("userJoin", data);
       http.post("/chats", {
@@ -337,7 +338,7 @@ function UserChat() {
           />
           <Box
             sx={{
-              mt: 3,
+              my: 3,
               display: "flex",
               justifyContent: "space-between"
             }}

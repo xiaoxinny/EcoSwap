@@ -1,174 +1,108 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Container,
-  Box,
-  Tabs,
-  Tab,
-  Paper,
-  TextField,
-  Button,
   List,
   ListItem,
   ListItemText,
+  TextField,
+  Button,
+  Box,
+  Divider,
 } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
+// Create socket connection outside of the component
 const socket = io("http://localhost:3001");
 
-function IndvChat() {
-  const [value, setValue] = useState(0);
+function ChatRoom() {
+  const navigate = useNavigate();
+  const { identifier } = useParams(); // Get the room identifier from the URL
+  const [chatHistory, setChatHistory] = useState([]);
   const [message, setMessage] = useState("");
-  const [rooms, setRooms] = useState([]);
-  const [chatHistory, setChatHistory] = useState({});
-  const [username, setUsername] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false);
+  const hasJoinedRef = useRef(false); // Ref to track if staffJoin has been emitted
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("staffUsername");
-    if (storedUsername) {
-      setUsername(storedUsername);
-      handleLogin(storedUsername);
+    console.log("useEffect triggered with identifier:", identifier);
+
+    if (!hasJoinedRef.current) {
+      // Join the room when component mounts
+      console.log("Emitting staffJoin event");
+      socket.emit("staffJoin", { room: `room_${identifier}`, username: "Staff" });
+      hasJoinedRef.current = true; // Set the ref to true after emitting
     }
 
-    socket.on('chatMessage', handleChatMessage);
-
-    socket.on('staffJoinedRoom', handleStaffJoinedRoom);
-
-    socket.on("roomsList", (roomsList) => {
-      setRooms(roomsList);
+    // Listen for incoming chat messages
+    socket.on("chatMessage", (msg) => {
+      setChatHistory((prevHistory) => [...prevHistory, msg]);
     });
 
-    socket.on("chatHistory", (history) => {
-      setChatHistory((prev) => ({
-        ...prev,
-        [rooms[value]]: history,
-      }));
-    });
-
+    // Clean up the event listener when component unmounts
     return () => {
+      console.log("Cleaning up chatMessage listener and emitting staffLeave event");
       socket.off("chatMessage");
-      socket.off("roomsList");
-      socket.off("chatHistory");
-      socket.off("staffJoinedRoom");
     };
+  }, [identifier]); // This useEffect should only run when 'identifier' changes
 
-  }, [username, value, rooms, message, chatHistory, loggedIn]);
-
-  const handleChatMessage = (message) => {
-    console.log("handleChatMessage:", message);
-    setChatHistory((prev) => {
-      const chatHistory = { ...prev };
-      if (!chatHistory[message.room]) {
-        chatHistory[message.room] = [];
-      }
-      chatHistory[message.room].push(message);
-      return chatHistory;
-    });
-  };
-
-  const handleStaffJoinedRoom = (data) => {
-    if (data.room === currentRoom) {
-      setChatHistory((prev) => [
-        ...prev,
-        { sender: 'System', text: `${data.username} has joined the room.` }
-      ]);
-    }
-  };
-
-  const handleLogin = (staffUsername) => {
-    socket.emit("staffLogin", { username: staffUsername });
-    localStorage.setItem("staffUsername", staffUsername);
-    setLoggedIn(true);
-  };
-
-  const handleSendMessage = () => {
+  const sendMessage = () => {
     if (message.trim()) {
-      console.log("currentRoom:", rooms[value]);
-      console.log("message:", message);
-      const storedUsername = localStorage.getItem("staffUsername");
-      const room = rooms[value];
-      socket.emit("chatMessage", { room, msg: message, username: username || storedUsername });
-      setMessage("");
+      // Send the message to the room
+      socket.emit("chatMessage", { room: `room_${identifier}`, msg: message, username: "Staff" });
+      setMessage(""); // Clear the message input
     }
   };
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-    const room = rooms[newValue];
-    socket.emit("staffJoinedRoom", { room, username });
-  };
-
-  const handleDownload = (room) => {
-    fetch(`http://localhost:3001/downloadTranscript/${room}`) 
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${room}-transcript.txt`;
-        a.click();
-      })
-      .catch((err) => console.error("Failed to download transcript:", err));
-  };
+  const leaveChat = () => {
+    // Optionally handle leaving the chat if needed
+    socket.emit("staffLeave", { room: `room_${identifier}` });
+    setChatHistory([]); // Clear the chat history
+    setMessage(""); // Clear the message input
+    navigate("/live-support");
+  }
 
   return (
     <Container>
-      {!loggedIn ? (
-        <Box display="flex" flexDirection="column" alignItems="center">
-          <TextField
-            label="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            onClick={() => username && handleLogin(username)}
-          >
-            Login
-          </Button>
-        </Box>
-      ) : (
-        <>
-        <h1>Sessions</h1>
-          <Tabs value={value} onChange={handleChange} aria-label="chat rooms">
-            {rooms.map((room, index) => (
-              <Tab key={index} label={room} />
-            ))}
-          </Tabs>
-          {rooms.length > 0 && (
-            <Paper style={{ padding: "10px" }}>
-              <List>
-                {chatHistory[rooms[value]] &&
-                  chatHistory[rooms[value]].map((msg, index) => (
-                    <ListItem key={index}>
-                      <ListItemText
-                        primary={`${msg.sender}: ${msg.text}`}
-                        secondary={new Date(msg.timestamp).toLocaleString()}
-                      />
-                    </ListItem>
-                  ))}
-              </List>
-              <TextField
-                label="Type a message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                fullWidth
+      <h2>Chat Room {identifier}</h2>
+      <Divider sx={{ mb: 2 }} />
+
+      <Box
+        sx={{
+          height: "60vh",
+          overflowY: "scroll",
+          backgroundColor: "#f9f9f9",
+          padding: 2,
+          borderRadius: "8px",
+          boxShadow: "0px 3px 6px rgba(0,0,0,0.1)",
+          marginBottom: "16px"
+        }}
+      >
+        <List>
+          {chatHistory.map((msg, index) => (
+            <ListItem key={index}>
+              <ListItemText
+                primary={`${msg.sender}: ${msg.text}`}
+                secondary={new Date(msg.timestamp).toLocaleString()}
               />
-              <Button variant="contained" onClick={handleSendMessage}>
-                Send
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => handleDownload(rooms[value])}
-              >
-                Download Transcript
-              </Button>
-            </Paper>
-          )}
-        </>
-      )}
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+
+      <Box display="flex" gap={2}>
+        <TextField
+          label="Type your message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          fullWidth
+          variant="outlined"
+        />
+        <Button variant="contained" onClick={sendMessage}>
+          Send
+        </Button>
+        <Button variant="contained" onClick={leaveChat}>Leave</Button>
+      </Box>
     </Container>
   );
 }
 
-export default IndvChat;
+export default ChatRoom;

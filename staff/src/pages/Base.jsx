@@ -101,7 +101,7 @@ function Layout() {
                 <ListItemIcon>
                   {icons[index % icons.length]}
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemText primary={text}/>
               </ListItemButton>
             </ListItem>
           )

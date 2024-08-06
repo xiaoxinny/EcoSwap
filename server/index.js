@@ -29,25 +29,24 @@ const io = require("socket.io")(server, {
   },
 });
 
-const chatHistory = {};
-const staffRooms = {};
-
 io.on('connection', (socket) => {
 
   socket.on("chatMessage", (msg) => {
     const currentMessage = { sender: msg.username, text: msg.msg, timestamp: new Date(), room: msg.room };
-    console.log(currentMessage)
+
+    socket.join(msg.room);
     io.to(msg.room).emit("chatMessage", currentMessage);
+    io.emit('chatDetails', {identifier: msg.socket, room: msg.room, sender: msg.username, message: msg.msg, timestamp: new Date()});
   });
 
-  socket.on('userJoin', (data) => {
+  socket.on("userJoin", (data) => {
     console.log('User joined:', data);
     if (!data) return;
 
     socket.join(data.room);
 
-    io.to(data.room).emit('chatMessage', { sender: 'System', text: `User ${data.username} joined the chat.`, timestamp: new Date(), room: data.room });
-
+    io.to(data.room).emit("chatMessage", { sender: 'System', text: `User ${data.username} joined the chat.`, timestamp: new Date(), room: data.room });
+    io.emit("chatDetails", {identifier: data.socket, room: data.room, sender: data.username, message: data.msg, timestamp: new Date()});
   });
 
   socket.on('staffJoin', (data) => {
@@ -55,14 +54,22 @@ io.on('connection', (socket) => {
     if (!data) return;
 
     socket.join(data.room);
-
-    io.to(data.room).emit('chatMessage', { sender: 'System', text: `Staff member ${data.username} joined the chat.`, timestamp: new Date(), room: data.room });
+ 
+    io.to(data.room).emit("chatMessage", { sender: 'System', text: `Staff member ${data.username} joined the chat.`, timestamp: new Date() });
   });
 
   socket.on('sessionEnd', (data) => {
     console.log('User disconnected');
-    socket.join(data.room);
     io.to(data.room).emit('chatMessage', { sender: 'System', text: `User ${data.username} disconnected`, timestamp: new Date(), room: data.room });
+    socket.leave(data.room);
+
+  });
+
+  socket.on('staffLeave', (data) => {
+    console.log('Staff disconnected');
+    io.to(data.room).emit('chatMessage', { sender: 'System', text: `Staff disconnected`, timestamp: new Date(), room: data.room });
+    socket.leave(data.room);
+
   });
 
 
