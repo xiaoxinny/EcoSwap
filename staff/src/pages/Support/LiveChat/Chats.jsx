@@ -16,42 +16,22 @@ const socket = io("http://localhost:3001");
 
 function Chats() {
   const navigate = useNavigate();
-  const [rooms, setRooms] = useState([]);
   const [username, setUsername] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const roomsRef = useRef(rooms);
+  const [rooms, setRooms] = useState([]);
+  const [latestMessage, setLatestMessage] = useState("");
 
   useEffect(() => {
+    //TODO: Integrate Bernard's profile service 
     const storedUsername = localStorage.getItem("staffUsername");
     if (storedUsername) {
       setUsername(storedUsername);
       handleLogin(storedUsername);
     }
 
-    const handleDetails = (data) => {
-      const index = roomsRef.current.findIndex(
-        (item) => item.identifier === data.identifier
-      );
-      if (index !== -1) {
-        setRooms((prevRooms) => {
-          const newRooms = [...prevRooms];
-          newRooms[index] = data;
-          roomsRef.current = newRooms;
-          return newRooms;
-        });
-      } else {
-        setRooms((prevRooms) => {
-          const newRooms = [...prevRooms, data];
-          roomsRef.current = newRooms;
-          return newRooms;
-        });
-      }
-    };
 
-    socket.on("chatDetails", handleDetails);
 
     return () => {
-      socket.off("chatDetails", handleDetails);
     };
   }, []);
 
@@ -64,6 +44,8 @@ function Chats() {
   const handleRoomClick = (identifier) => {
     navigate(`/live-support/${identifier}`);
   };
+
+  
 
   return (
     <Container>
@@ -82,8 +64,9 @@ function Chats() {
           </Button>
         </Box>
       ) : (
+        <>
         <Container>
-          <h1>Chats</h1>
+          <h1>Active Chats</h1>
           <Divider></Divider>
           <p>Click on any to begin chatting.</p>
           <List>
@@ -97,6 +80,11 @@ function Chats() {
             ))}
           </List>
         </Container>
+        <Container>
+          <h1>History</h1>
+          <Divider></Divider>
+        </Container>
+        </>
       )}
     </Container>
   );

@@ -1,5 +1,3 @@
-const { on } = require("pg/lib/query");
-
 module.exports = (sequelize, DataTypes) => {
   const Chat = sequelize.define(
     "Chat",

@@ -18,10 +18,11 @@ app.use(session({
   saveUninitialized: false
 }));
 
+// Accounts Routes
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// Routes
+
 const userRoute = require('./routes/Accounts/user');
 app.use("/user", userRoute);
 
@@ -64,6 +65,21 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Base route
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+// Support Routes
+const faqRoutes = require("./routes/Support/faq.controller.js");
+app.use("/faqs", faqRoutes);
+
+const chatRoutes = require("./routes/Support/chat.controller.js");
+app.use("/chat", chatRoutes);
+
+const roomRoutes = require("./routes/Support/rooms.controller.js");
+app.use("/rooms", roomRoutes);
+
 // Defining the HTTP server to handle Socket IO
 const server = http.createServer(app);
 
@@ -76,60 +92,36 @@ const io = require("socket.io")(server, {
 });
 
 io.on('connection', (socket) => {
-
-  socket.on("chatMessage", (msg) => {
-    const currentMessage = { sender: msg.username, text: msg.msg, timestamp: new Date(), room: msg.room };
-
-    socket.join(msg.room);
-    io.to(msg.room).emit("chatMessage", currentMessage);
-    io.emit('chatDetails', {identifier: msg.socket, room: msg.room, sender: msg.username, message: msg.msg, timestamp: new Date()});
+  // User/Staff sends a message to the room specified
+  socket.on("chatMessage", (message) => {
+    const currentMessage = { sender: message.username, text: message.message, timestamp: new Date(), room: message.room };
+    io.to(message.room).emit("chatMessage", currentMessage);
+    
   });
 
+  // User joins the chat, should only be called once
   socket.on("userJoin", (data) => {
     console.log('User joined:', data);
     if (!data) return;
-
     socket.join(data.room);
-
     io.to(data.room).emit("chatMessage", { sender: 'System', text: `User ${data.username} joined the chat.`, timestamp: new Date(), room: data.room });
-    io.emit("chatDetails", {identifier: data.socket, room: data.room, sender: data.username, message: data.msg, timestamp: new Date()});
   });
 
+  // Staff joins the chat, should only be called once
   socket.on('staffJoin', (data) => {
     console.log('Staff joined:', data);
     if (!data) return;
-
     socket.join(data.room);
- 
-    io.to(data.room).emit("chatMessage", { sender: 'System', text: `Staff member ${data.username} joined the chat.`, timestamp: new Date() });
+    io.to(data.room).emit("chatMessage", { sender: 'System', text: `Staff ${data.username} joined the chat.`, timestamp: new Date() });
   });
 
+  // User disconnects from the chat
   socket.on('sessionEnd', (data) => {
     console.log('User disconnected');
     io.to(data.room).emit('chatMessage', { sender: 'System', text: `User ${data.username} disconnected`, timestamp: new Date(), room: data.room });
     socket.leave(data.room);
-
-  });
-
-  socket.on('staffLeave', (data) => {
-    console.log('Staff disconnected');
-    io.to(data.room).emit('chatMessage', { sender: 'System', text: `Staff disconnected`, timestamp: new Date(), room: data.room });
-    socket.leave(data.room);
-
   });
 });
-
-// Base route
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-// Routes
-const faqRoutes = require("./routes/Support/faq.controller.js");
-app.use("/faqs", faqRoutes);
-
-const chatRoutes = require("./routes/Support/chat.controller.js");
-app.use("/Chat", chatRoutes);
 
 // Sychronizing with database and launching the server
 db.sequelize

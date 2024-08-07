@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
 });
 
 // Get all chat entries for a specific room
-router.get("/download/:room_name", async (req, res) => {
+router.get("/:room_name", async (req, res) => {
   try {
     const chat = await Chat.findAll({
       where: { room_name: req.params.room_name },

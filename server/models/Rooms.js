@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 unique: true,
             },
+            status: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+            },
             createdAt: {
                 type: DataTypes.DATE,
                 allowNull: false,

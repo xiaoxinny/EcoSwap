@@ -29,35 +29,17 @@ function UserChat() {
   const [chatHistory, setChatHistory] = useState([]);
   const [joined, setJoined] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [staffUsername, setStaffUsername] = useState("");
 
   // All handlers for ON events from server
   useEffect(() => {
     if (joined) {
-      const handleStaffJoin = (data) => {
-        if (data.room === roomName) {
-          setChatHistory((prev) => [
-            ...prev,
-            {
-              sender: "System",
-              text: `Staff ${data.username} has joined the room.`,
-            },
-          ]);
-          setStaffUsername(data.username);
-        }
-      };
-
       const handleChatMessage = (message) => {
-        console.log(message)
         setChatHistory((prev) => [...prev, message]);
-        
       };
 
-      socket.on("staffJoin", handleStaffJoin);
       socket.on("chatMessage", handleChatMessage);
 
       return () => {
-        socket.off("staffJoin", handleStaffJoin);
         socket.off("chatMessage", handleChatMessage);
       };
     }
@@ -68,20 +50,26 @@ function UserChat() {
     if (username.trim()) {
       setJoined(true);
       setRoomName(`room_${socket.id}`);
+
       const data = {
-        socket: socket.id,
         room: `room_${socket.id}`,
         username: username,
-        msg: "User joined the chat.",
-      }
+      };
+
       socket.emit("userJoin", data);
-      http.post("/chats", {
+
+      // Create a new room entry in the database
+      http.post("/rooms", {
         socket_id: socket.id,
         room_name: `room_${socket.id}`,
-        chat_data: {
-          users: [username],
-          messages: [ { sender: 'System', text: `User ${username} joined the chat.` }], 
-        },
+        status: true,
+      });
+
+      // Initialize chat data for the new room
+      http.post("/chat", {
+        room_name: `room_${socket.id}`,
+        username: username,
+        message: `User ${username} joined the chat.`,
       });
     }
   };
@@ -90,28 +78,18 @@ function UserChat() {
   const handleSendMessage = () => {
     if (message.trim()) {
       socket.emit("chatMessage", {
-        socket: socket.id,
         room: roomName,
         username: username,
-        msg: message,
+        message: message,
       });
-      if (staffUsername) {
-        http.put(`/chats/${socket.id}`, {
-          room: roomName,
-          chat_data: {
-            users: [username, staffUsername],
-            messages: [...chatHistory, { sender: username, text: message }],
-          },
-        });
-      } else {
-        http.put(`/chats/${socket.id}`, {
-          room: roomName,
-          chat_data: {
-            users: [username],
-            messages: [...chatHistory, { sender: username, text: message }], 
-          },
-        });
-      }
+
+      // Create a new chat entry in the database
+      http.post("/chat", {
+        room_name: roomName,
+        username: username,
+        message: message,
+      });
+
       setMessage("");
     }
   };
@@ -129,27 +107,15 @@ function UserChat() {
   // Handler for confirming exit
   const handleConfirmExit = () => {
     socket.emit("sessionEnd", {
-      socket: socket.id,
       room: roomName,
       username: username,
     });
-    if (staffUsername) {
-      http.put(`/chats/${socket.id}`, {
-        room: roomName,
-        chat_data: {
-          users: [username, staffUsername],
-          messages: [...chatHistory, { sender: 'System', text: `User ${username} disconnected.` }],
-        },
-      });
-    } else {
-      http.put(`/chats/${socket.id}`, {
-        room: roomName,
-        chat_data: {
-          users: [username],
-          messages: [...chatHistory, { sender: 'System', text: `User ${username} disconnected.` }], 
-        },
-      });
-    }
+
+    // Update the room entry in the database
+    http.put(`/rooms/${roomName}`, {
+      status: false,
+    });
+
     setJoined(false);
     setUsername("");
     setMessage("");
@@ -161,24 +127,24 @@ function UserChat() {
 
   // Handler for downloading chat transcript
   const handleDownloadTranscript = () => {
-    fetch(`http://localhost:3001/downloadTranscript/${socket.id}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.statusText}`);
-        }
-        return response.blob();
+    console.log("Download transcript");
+    http.get(
+      `/chat/${roomName}`.then((res) => {
+        res
+          .blob()
+          .then((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${username}-transcript.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          })
+          .catch((err) => console.error("Failed to fetch chat history:", err));
       })
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${username}-transcript.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((err) => console.error("Failed to download transcript:", err));
+    );
   };
 
   return (
@@ -239,7 +205,7 @@ function UserChat() {
                       backgroundColor: "darkgrey",
                     },
                     width: "45%",
-                    borderRadius: "99999px"
+                    borderRadius: "99999px",
                   }}
                 >
                   Join Chat
@@ -340,7 +306,7 @@ function UserChat() {
             sx={{
               my: 3,
               display: "flex",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
             }}
           >
             <Button
@@ -380,8 +346,8 @@ function UserChat() {
               <Button
                 variant="contained"
                 color="warning"
-                onClick={handleOpenDialog} 
-                sx={{borderRadius: "99999px",}}
+                onClick={handleOpenDialog}
+                sx={{ borderRadius: "99999px" }}
               >
                 End Session
               </Button>

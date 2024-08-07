@@ -6,6 +6,7 @@ const router = express.Router();
 const validationSchema = yup.object({
   socket_id: yup.string().trim().min(3).max(255).required(),
   room_name: yup.string().trim().min(3).max(255).required(),
+  status: yup.boolean().default(true),
   createdAt: yup.date().default(() => new Date()),
   updatedAt: yup.date().default(() => new Date()),
 });
@@ -24,7 +25,17 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update information of room entry
+// Get all room entries
+router.get("/", async (req, res) => {
+  try {
+    const rooms = await Rooms.findAll();
+    res.json(rooms);
+  } catch (err) {
+    res.status(400).json({ errors: err.errors || err.message });
+  }
+});
+
+// Obtain information of room entry
 router.get("/:room_name", async (req, res) => {
   try {
     const room = await Rooms.findOne({
@@ -34,6 +45,26 @@ router.get("/:room_name", async (req, res) => {
       res.json(room);
     } else {
       res.status(404).json({ message: "Room entry not found" });
+    }
+  } catch (err) {
+    res.status(400).json({ errors: err.errors || err.message });
+  }
+});
+
+// Update information of room entry
+router.put("/:room_name", async (req, res) => {
+  try {
+    const data = await validationSchema.validate(req.body, {
+      abortEarly: false,
+    });
+
+    const updated = await Rooms.update(data, {
+      where: { room_name: req.params.room_name },
+    });
+    if (updated) {
+      res.json({ message: "Room updated" });
+    } else {
+      res.status(404).json({ message: "Room not found" });
     }
   } catch (err) {
     res.status(400).json({ errors: err.errors || err.message });
