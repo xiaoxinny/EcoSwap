@@ -21,6 +21,7 @@ let sequelize = new Sequelize(
     timezone: "+08:00",
   }
 );
+
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (

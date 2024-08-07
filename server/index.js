@@ -1,4 +1,4 @@
-const { Chats } = require('./models');
+const { Chat } = require('./models');
 const express = require("express");
 const session = require('express-session');
 const passport = require('passport');
@@ -119,45 +119,6 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get('/downloadTranscript/:socket_id', async (req, res) => {
-  const socketId = req.params.socket_id;
-
-  try {
-    const chatEntry = await Chats.findOne({ where: { socket_id: socketId } });
-
-    if (!chatEntry) {
-      return res.status(404).send('Chat entry not found');
-    }
-
-    const { room_name, chat_data } = chatEntry;
-    
-    const transcript = chat_data.messages
-      .map(msg => `${new Date().toLocaleString()} - ${msg.sender}: ${msg.text}`)
-      .join('\n');
-
-    const filePath = path.join(__dirname, `${socketId}-transcript.txt`);
-
-    fs.writeFile(filePath, transcript, (err) => {
-      if (err) {
-        return res.status(500).send('Failed to generate transcript');
-      }
-
-      res.download(filePath, (err) => {
-        if (err) {
-          return res.status(500).send('Failed to download transcript');
-        }
-
-        fs.unlink(filePath, (err) => {
-          if (err) console.error('Failed to delete transcript file');
-        });
-      });
-    });
-  } catch (err) {
-    console.error('Error fetching chat entry:', err);
-    res.status(500).send('Internal server error');
-  }
-});
-
 // Base route
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -167,8 +128,8 @@ app.get("/", (req, res) => {
 const faqRoutes = require("./routes/Support/faq.controller.js");
 app.use("/faqs", faqRoutes);
 
-const chatRoutes = require("./routes/Support/chats.controller.js");
-app.use("/chats", chatRoutes);
+const chatRoutes = require("./routes/Support/chat.controller.js");
+app.use("/Chat", chatRoutes);
 
 // Sychronizing with database and launching the server
 db.sequelize
