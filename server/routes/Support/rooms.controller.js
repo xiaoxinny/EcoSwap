@@ -86,3 +86,5 @@ router.delete("/:room_name", async (req, res) => {
     res.status(400).json({ errors: err.errors || err.message });
   }
 });
+
+module.exports = router;

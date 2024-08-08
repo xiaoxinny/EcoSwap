@@ -7,9 +7,10 @@ const app = express();
 const cors = require("cors");
 const db = require("./models");
 const http = require("http");
-const fs = require('fs');
 const path = require('path');
 const sign = require('jsonwebtoken').sign;
+
+app.use(express.json());
 
 require("dotenv").config();
 app.use(session({
@@ -52,7 +53,6 @@ app.get('/api/check-auth', (req, res) => {
     }
 });
 
-app.use(express.json());
 
 // Initialize Passport
 require('./config/passport-setup');
@@ -91,12 +91,14 @@ const io = require("socket.io")(server, {
   },
 });
 
+const roomsAndUsernames = {};
+
 io.on('connection', (socket) => {
   // User/Staff sends a message to the room specified
   socket.on("chatMessage", (message) => {
     const currentMessage = { sender: message.username, text: message.message, timestamp: new Date(), room: message.room };
     io.to(message.room).emit("chatMessage", currentMessage);
-    
+    socket.emit("latestMessage", currentMessage);
   });
 
   // User joins the chat, should only be called once
@@ -104,7 +106,11 @@ io.on('connection', (socket) => {
     console.log('User joined:', data);
     if (!data) return;
     socket.join(data.room);
-    io.to(data.room).emit("chatMessage", { sender: 'System', text: `User ${data.username} joined the chat.`, timestamp: new Date(), room: data.room });
+    roomsAndUsernames[data.room] = { username: data.username, count: 1 };
+    const currentMessage = { sender: 'System', text: `User ${data.username} joined the chat.`, timestamp: new Date(), room: data.room };
+    io.to(data.room).emit("chatMessage", currentMessage);
+    socket.emit("latestMessage", currentMessage);
+    socket.emit("roomAndUsernamesList", roomsAndUsernames);
   });
 
   // Staff joins the chat, should only be called once
@@ -120,6 +126,8 @@ io.on('connection', (socket) => {
     console.log('User disconnected');
     io.to(data.room).emit('chatMessage', { sender: 'System', text: `User ${data.username} disconnected`, timestamp: new Date(), room: data.room });
     socket.leave(data.room);
+    rooms.pop(data.room);
+    socket.emit("roomList", rooms);
   });
 });
 

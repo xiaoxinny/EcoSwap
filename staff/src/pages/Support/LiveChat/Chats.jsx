@@ -9,7 +9,9 @@ import {
   Box,
   Container,
   Divider,
+  Badge,
 } from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3001");
@@ -18,7 +20,7 @@ function Chats() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [rooms, setRooms] = useState([]);
+  const [roomsAndUsernames, setRoomsAndUsernames] = useState({});
   const [latestMessage, setLatestMessage] = useState("");
 
   useEffect(() => {
@@ -29,11 +31,22 @@ function Chats() {
       handleLogin(storedUsername);
     }
 
+    const handleRoomsAndUsernames = (data) => {
+      setRoomsAndUsernames(data);
+    }
 
+    const handleLatestMessage = (data) => {
+      setLatestMessage(data);
+    }
+
+    socket.on("roomList", handleRoomsAndUsernames);
+    socket.on("latestMessage", handleLatestMessage);
 
     return () => {
+      socket.off("roomList", handleRoomsAndUsernames);
+      socket.off("latestMessage", handleLatestMessage);
     };
-  }, []);
+  }, [roomsAndUsernames]);
 
   const handleLogin = (staffUsername) => {
     socket.emit("staffLogin", { username: staffUsername });
@@ -46,7 +59,6 @@ function Chats() {
   };
 
   
-
   return (
     <Container>
       {!loggedIn ? (
@@ -70,15 +82,28 @@ function Chats() {
           <Divider></Divider>
           <p>Click on any to begin chatting.</p>
           <List>
+            {Object.keys(roomsAndUsernames).map((room, index) => (
+              <ListItem key={index} id={room} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} onClick={() => handleRoomClick(room)}>
+                <ListItemText
+                  primary={`${roomsAndUsernames[room].username}`}
+                  secondary={latestMessage[room] ? latestMessage[room].text : ""}
+                />
+                <Badge badgeContent={17} color="error">
+                  <NotificationsIcon />
+                </Badge>
+              </ListItem>
+            ))}
+          </List>
+          {/* <List>
             {rooms.map((data, index) => (
-              <ListItem key={index} id={data.identifier} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} button onClick={() => handleRoomClick(data.identifier)}>
+              <ListItem key={index} id={data.identifier} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} onClick={() => handleRoomClick(data.identifier)}>
                 <ListItemText
                   primary={`${data.sender}: ${data.message}`}
                   secondary={new Date(data.timestamp).toLocaleString()}
                 />
               </ListItem>
             ))}
-          </List>
+          </List> */}
         </Container>
         <Container>
           <h1>History</h1>
