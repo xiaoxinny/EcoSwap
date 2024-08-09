@@ -15,13 +15,13 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3001");
+var messageCounts = {};
 
 function Chats() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [roomsAndUsernames, setRoomsAndUsernames] = useState({});
-  const [latestMessage, setLatestMessage] = useState("");
+  const [information, setInformation] = useState({});
 
   useEffect(() => {
     //TODO: Integrate Bernard's profile service 
@@ -31,22 +31,27 @@ function Chats() {
       handleLogin(storedUsername);
     }
 
-    const handleRoomsAndUsernames = (data) => {
-      setRoomsAndUsernames(data);
+    const handleInformation = (data) => {
+      setInformation(data);
+      Object.keys(data).forEach((room) => {
+
+        // Check if the room exists in messageCounts, else initialize it
+        if (messageCounts[room] !== undefined) {
+          messageCounts[room] += data[room].counter;
+        } else {
+          messageCounts[room] = data[room].counter;
+        }
+    
+        console.log(`Updated messageCounts for ${room}:`, messageCounts[room]);
+      });
     }
 
-    const handleLatestMessage = (data) => {
-      setLatestMessage(data);
-    }
-
-    socket.on("roomList", handleRoomsAndUsernames);
-    socket.on("latestMessage", handleLatestMessage);
+    socket.on("updateInformation", handleInformation);
 
     return () => {
-      socket.off("roomList", handleRoomsAndUsernames);
-      socket.off("latestMessage", handleLatestMessage);
+      socket.off("updateInformation", handleInformation);
     };
-  }, [roomsAndUsernames]);
+  }, []);
 
   const handleLogin = (staffUsername) => {
     socket.emit("staffLogin", { username: staffUsername });
@@ -54,11 +59,11 @@ function Chats() {
     setLoggedIn(true);
   };
 
-  const handleRoomClick = (identifier) => {
-    navigate(`/live-support/${identifier}`);
+  const handleRoomClick = (socket) => {
+    console.log("Navigating to room:", socket);
+    navigate(`/live-support/${socket}`);
   };
 
-  
   return (
     <Container>
       {!loggedIn ? (
@@ -82,28 +87,18 @@ function Chats() {
           <Divider></Divider>
           <p>Click on any to begin chatting.</p>
           <List>
-            {Object.keys(roomsAndUsernames).map((room, index) => (
-              <ListItem key={index} id={room} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} onClick={() => handleRoomClick(room)}>
+            {Object.keys(information).map((room, index) => (
+              <ListItem key={index} id={room} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} onClick={() => handleRoomClick(room.slice(5))}>
                 <ListItemText
-                  primary={`${roomsAndUsernames[room].username}`}
-                  secondary={latestMessage[room] ? latestMessage[room].text : ""}
+                  primary={`${information[room].username}`}
+                  secondary={`${information[room].currentMessage.sender}: ${information[room].currentMessage.text}`}
                 />
-                <Badge badgeContent={17} color="error">
+                <Badge badgeContent={messageCounts[room]} color="error">
                   <NotificationsIcon />
                 </Badge>
               </ListItem>
             ))}
           </List>
-          {/* <List>
-            {rooms.map((data, index) => (
-              <ListItem key={index} id={data.identifier} sx={{backgroundColor:'white', border:"1px solid rgba(0,0,0,0.2)", borderRadius:"5px"}} onClick={() => handleRoomClick(data.identifier)}>
-                <ListItemText
-                  primary={`${data.sender}: ${data.message}`}
-                  secondary={new Date(data.timestamp).toLocaleString()}
-                />
-              </ListItem>
-            ))}
-          </List> */}
         </Container>
         <Container>
           <h1>History</h1>

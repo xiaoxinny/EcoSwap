@@ -32,7 +32,7 @@ const StaffRoutes = () => {
                 <Route path="/violations" element={<Violations />} />
                 <Route path="/appeals" element={<Appeals />} />
                 <Route path="/live-support" element={<Chats />} />
-                <Route path="/live-support/:identifier" element={<IndvChat />} />
+                <Route path="/live-support/:room" element={<IndvChat />} />
                 <Route path="/accounts" element={<Accounts />} />
 
             {/* Accounts */}

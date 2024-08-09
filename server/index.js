@@ -91,26 +91,29 @@ const io = require("socket.io")(server, {
   },
 });
 
-const roomsAndUsernames = {};
+const information = {};
 
 io.on('connection', (socket) => {
   // User/Staff sends a message to the room specified
   socket.on("chatMessage", (message) => {
     const currentMessage = { sender: message.username, text: message.message, timestamp: new Date(), room: message.room };
     io.to(message.room).emit("chatMessage", currentMessage);
-    socket.emit("latestMessage", currentMessage);
+    information[message.room] = { username: message.username, currentMessage, counter: 1 };
+    io.emit("updateInformation", information);
   });
 
   // User joins the chat, should only be called once
   socket.on("userJoin", (data) => {
     console.log('User joined:', data);
     if (!data) return;
+
     socket.join(data.room);
-    roomsAndUsernames[data.room] = { username: data.username, count: 1 };
+
     const currentMessage = { sender: 'System', text: `User ${data.username} joined the chat.`, timestamp: new Date(), room: data.room };
+    information[data.room] = { username: data.username, currentMessage, counter: 1 };
     io.to(data.room).emit("chatMessage", currentMessage);
-    socket.emit("latestMessage", currentMessage);
-    socket.emit("roomAndUsernamesList", roomsAndUsernames);
+    io.emit("updateInformation", information);
+    information[data.room].counter = 0;
   });
 
   // Staff joins the chat, should only be called once
@@ -118,7 +121,7 @@ io.on('connection', (socket) => {
     console.log('Staff joined:', data);
     if (!data) return;
     socket.join(data.room);
-    io.to(data.room).emit("chatMessage", { sender: 'System', text: `Staff ${data.username} joined the chat.`, timestamp: new Date() });
+    io.to(data.room).emit("chatMessage", { sender: 'System', text: `Staff ${data.username} joined the chat.`, timestamp: new Date(), room: data.room });
   });
 
   // User disconnects from the chat
@@ -126,8 +129,8 @@ io.on('connection', (socket) => {
     console.log('User disconnected');
     io.to(data.room).emit('chatMessage', { sender: 'System', text: `User ${data.username} disconnected`, timestamp: new Date(), room: data.room });
     socket.leave(data.room);
-    rooms.pop(data.room);
-    socket.emit("roomList", rooms);
+    // rooms.pop(data.room);
+    // socket.emit("roomList", rooms);
   });
 });
 

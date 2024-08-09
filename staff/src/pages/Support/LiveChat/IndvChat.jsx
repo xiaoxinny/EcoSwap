@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   List,
@@ -11,58 +11,71 @@ import {
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import http from "../../../http";
 
 // Create socket connection outside of the component
 const socket = io("http://localhost:3001");
 
 function ChatRoom() {
   const navigate = useNavigate();
-  const { identifier } = useParams(); // Get the room identifier from the URL
+  const { room } = useParams();
   const [chatHistory, setChatHistory] = useState([]);
   const [message, setMessage] = useState("");
-  const hasJoinedRef = useRef(false); // Ref to track if staffJoin has been emitted
 
   useEffect(() => {
-    console.log("useEffect triggered with identifier:", identifier);
+    // Join the room when component mounts
+    console.log("Emitting staffJoin event");
+    socket.emit("staffJoin", {
+      room: `room_${room}`,
+      username: localStorage.getItem("staffUsername"),
+    });
 
-    if (!hasJoinedRef.current) {
-      // Join the room when component mounts
-      console.log("Emitting staffJoin event");
-      socket.emit("staffJoin", { room: `room_${identifier}`, username: "Staff" });
-      hasJoinedRef.current = true; // Set the ref to true after emitting
-    }
+    http
+      .get(`/chat/room_${room}`)
+      .then((res) => console.log(res.data))
+      .then((res) =>
+        res.map((entry) => ({
+          sender: entry.username,
+          text: entry.message,
+          timestamp: entry.createdAt,
+          room: entry.room_name,
+        }))
+      )
+      .then((res) => setChatHistory(res));
 
     // Listen for incoming chat messages
     socket.on("chatMessage", (msg) => {
       setChatHistory((prevHistory) => [...prevHistory, msg]);
     });
 
-    // Clean up the event listener when component unmounts
     return () => {
-      console.log("Cleaning up chatMessage listener and emitting staffLeave event");
       socket.off("chatMessage");
     };
-  }, [identifier]); // This useEffect should only run when 'identifier' changes
+  }, [room]);
 
   const sendMessage = () => {
     if (message.trim()) {
       // Send the message to the room
-      socket.emit("chatMessage", { room: `room_${identifier}`, msg: message, username: "Staff" });
+      socket.emit("chatMessage", {
+        room: `room_${room}`,
+        message: message,
+        username: localStorage.getItem("staffUsername"),
+      });
       setMessage(""); // Clear the message input
     }
   };
 
   const leaveChat = () => {
     // Optionally handle leaving the chat if needed
-    socket.emit("staffLeave", { room: `room_${identifier}` });
+    socket.emit("staffLeave", { room: `room_${room}` });
     setChatHistory([]); // Clear the chat history
     setMessage(""); // Clear the message input
     navigate("/live-support");
-  }
+  };
 
   return (
     <Container>
-      <h2>Chat Room {identifier}</h2>
+      <h2>Chat Room</h2>
       <Divider sx={{ mb: 2 }} />
 
       <Box
@@ -73,7 +86,7 @@ function ChatRoom() {
           padding: 2,
           borderRadius: "8px",
           boxShadow: "0px 3px 6px rgba(0,0,0,0.1)",
-          marginBottom: "16px"
+          marginBottom: "16px",
         }}
       >
         <List>
@@ -99,7 +112,9 @@ function ChatRoom() {
         <Button variant="contained" onClick={sendMessage}>
           Send
         </Button>
-        <Button variant="contained" onClick={leaveChat}>Leave</Button>
+        <Button variant="contained" onClick={leaveChat}>
+          Leave
+        </Button>
       </Box>
     </Container>
   );
